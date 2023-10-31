@@ -1,12 +1,11 @@
 import os
 import torch
 import numpy as np
-import argparse, sys
+import argparse
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import MultiStepLR
 import dataset
 import torchvision.transforms as transforms
 import models

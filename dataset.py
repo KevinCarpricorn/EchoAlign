@@ -90,7 +90,7 @@ class CIFAR10_test(Data.Dataset):
     def __getitem__(self, index):
         img, label = self.test_image[index], self.test_label[index]
 
-        img = Image.fromarray(img)
+        img = Image.fromarray(img.astype('uint8'))
 
         if self.transform is not None:
             img = self.transform(img)
