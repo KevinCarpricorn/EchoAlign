@@ -1,0 +1,301 @@
+epoch 1
+Train Loss: 2.336028, Acc: 10.788889%
+Val Loss: 2.422681, Acc: 9.540000%
+epoch 2
+Train Loss: 2.302695, Acc: 11.824444%
+Val Loss: 2.366932, Acc: 9.720000%
+epoch 3
+Train Loss: 2.299381, Acc: 11.762222%
+Val Loss: 2.370319, Acc: 10.960000%
+epoch 4
+Train Loss: 2.297561, Acc: 11.984444%
+Val Loss: 4.974209, Acc: 10.500000%
+epoch 5
+Train Loss: 2.296233, Acc: 11.891111%
+Val Loss: 2.401131, Acc: 10.180000%
+epoch 6
+Train Loss: 2.294939, Acc: 12.062222%
+Val Loss: 2.377914, Acc: 10.980000%
+epoch 7
+Train Loss: 2.294580, Acc: 12.153333%
+Val Loss: 2.415806, Acc: 10.500000%
+epoch 8
+Train Loss: 2.293605, Acc: 12.375556%
+Val Loss: 2.471344, Acc: 10.620000%
+epoch 9
+Train Loss: 2.293706, Acc: 12.160000%
+Val Loss: 6.519268, Acc: 10.500000%
+epoch 10
+Train Loss: 2.292620, Acc: 12.131111%
+Val Loss: 2.557354, Acc: 10.460000%
+epoch 11
+Train Loss: 2.292402, Acc: 12.453333%
+Val Loss: 2.522635, Acc: 10.460000%
+epoch 12
+Train Loss: 2.291371, Acc: 12.408889%
+Val Loss: 2.769859, Acc: 10.500000%
+epoch 13
+Train Loss: 2.290214, Acc: 12.595556%
+Val Loss: 3.538975, Acc: 10.480000%
+epoch 14
+Train Loss: 2.289005, Acc: 12.577778%
+Val Loss: 2.396765, Acc: 10.480000%
+epoch 15
+Train Loss: 2.289963, Acc: 12.637778%
+Val Loss: 2.958790, Acc: 10.500000%
+epoch 16
+Train Loss: 2.288631, Acc: 12.697778%
+Val Loss: 6.431097, Acc: 10.500000%
+epoch 17
+Train Loss: 2.288373, Acc: 12.613333%
+Val Loss: 4.344670, Acc: 10.120000%
+epoch 18
+Train Loss: 2.289239, Acc: 12.682222%
+Val Loss: 2.778531, Acc: 10.340000%
+epoch 19
+Train Loss: 2.288317, Acc: 12.651111%
+Val Loss: 3.467407, Acc: 10.460000%
+epoch 20
+Train Loss: 2.287879, Acc: 12.764444%
+Val Loss: 2.780388, Acc: 10.520000%
+epoch 21
+Train Loss: 2.287042, Acc: 12.782222%
+Val Loss: 2.819702, Acc: 10.520000%
+epoch 22
+Train Loss: 2.287429, Acc: 12.793333%
+Val Loss: 3.552515, Acc: 10.300000%
+epoch 23
+Train Loss: 2.287038, Acc: 12.717778%
+Val Loss: 2.795715, Acc: 10.420000%
+epoch 24
+Train Loss: 2.287267, Acc: 12.873333%
+Val Loss: 11.196283, Acc: 10.500000%
+epoch 25
+Train Loss: 2.286434, Acc: 12.675556%
+Val Loss: 3.389458, Acc: 10.360000%
+epoch 26
+Train Loss: 2.286248, Acc: 12.815556%
+Val Loss: 4.582810, Acc: 10.260000%
+epoch 27
+Train Loss: 2.286112, Acc: 13.068889%
+Val Loss: 3.045510, Acc: 9.660000%
+epoch 28
+Train Loss: 2.286272, Acc: 12.691111%
+Val Loss: 3.919147, Acc: 10.500000%
+epoch 29
+Train Loss: 2.285192, Acc: 12.851111%
+Val Loss: 10.259814, Acc: 9.660000%
+epoch 30
+Train Loss: 2.285261, Acc: 12.917778%
+Val Loss: 4.947704, Acc: 10.500000%
+epoch 31
+Train Loss: 2.285013, Acc: 12.846667%
+Val Loss: 4.053464, Acc: 10.520000%
+epoch 32
+Train Loss: 2.284455, Acc: 12.768889%
+Val Loss: 5.177340, Acc: 10.500000%
+epoch 33
+Train Loss: 2.284710, Acc: 12.795556%
+Val Loss: 4.563562, Acc: 10.300000%
+epoch 34
+Train Loss: 2.284539, Acc: 12.835556%
+Val Loss: 3.592604, Acc: 10.300000%
+epoch 35
+Train Loss: 2.283690, Acc: 13.053333%
+Val Loss: 22.279876, Acc: 10.100000%
+epoch 36
+Train Loss: 2.282951, Acc: 12.988889%
+Val Loss: 10.483230, Acc: 10.220000%
+epoch 37
+Train Loss: 2.283353, Acc: 12.991111%
+Val Loss: 12.788375, Acc: 10.100000%
+epoch 38
+Train Loss: 2.283125, Acc: 13.100000%
+Val Loss: 15.718604, Acc: 10.100000%
+epoch 39
+Train Loss: 2.282910, Acc: 12.942222%
+Val Loss: 3.328307, Acc: 10.580000%
+epoch 40
+Train Loss: 2.282038, Acc: 13.057778%
+Val Loss: 16.291810, Acc: 10.100000%
+epoch 41
+Train Loss: 2.282209, Acc: 13.033333%
+Val Loss: 5.179019, Acc: 10.120000%
+epoch 42
+Train Loss: 2.281364, Acc: 13.266667%
+Val Loss: 13.296234, Acc: 10.500000%
+epoch 43
+Train Loss: 2.281825, Acc: 13.262222%
+Val Loss: 39.709000, Acc: 10.320000%
+epoch 44
+Train Loss: 2.281231, Acc: 13.048889%
+Val Loss: 10.532553, Acc: 10.360000%
+epoch 45
+Train Loss: 2.281480, Acc: 13.144444%
+Val Loss: 16.577666, Acc: 10.100000%
+epoch 46
+Train Loss: 2.280598, Acc: 13.300000%
+Val Loss: 15.461401, Acc: 10.140000%
+epoch 47
+Train Loss: 2.280985, Acc: 12.866667%
+Val Loss: 42.244999, Acc: 10.100000%
+epoch 48
+Train Loss: 2.279990, Acc: 13.231111%
+Val Loss: 5.065565, Acc: 10.380000%
+epoch 49
+Train Loss: 2.281070, Acc: 13.188889%
+Val Loss: 32.008881, Acc: 10.220000%
+epoch 50
+Train Loss: 2.280289, Acc: 13.042222%
+Val Loss: 13.958271, Acc: 10.100000%
+epoch 51
+Train Loss: 2.279220, Acc: 13.244444%
+Val Loss: 4.607472, Acc: 9.440000%
+epoch 52
+Train Loss: 2.278841, Acc: 13.217778%
+Val Loss: 20.570120, Acc: 10.220000%
+epoch 53
+Train Loss: 2.279259, Acc: 13.460000%
+Val Loss: 5.854837, Acc: 10.240000%
+epoch 54
+Train Loss: 2.278232, Acc: 13.346667%
+Val Loss: 15.873902, Acc: 10.500000%
+epoch 55
+Train Loss: 2.277791, Acc: 13.200000%
+Val Loss: 24.043363, Acc: 10.100000%
+epoch 56
+Train Loss: 2.278094, Acc: 13.186667%
+Val Loss: 7.326295, Acc: 10.500000%
+epoch 57
+Train Loss: 2.277213, Acc: 13.384444%
+Val Loss: 20.707379, Acc: 10.220000%
+epoch 58
+Train Loss: 2.277633, Acc: 13.366667%
+Val Loss: 73.590938, Acc: 9.660000%
+epoch 59
+Train Loss: 2.276029, Acc: 13.142222%
+Val Loss: 82.294404, Acc: 10.100000%
+epoch 60
+Train Loss: 2.276523, Acc: 13.162222%
+Val Loss: 14.299831, Acc: 9.440000%
+epoch 61
+Train Loss: 2.275435, Acc: 13.237778%
+Val Loss: 55.165001, Acc: 10.100000%
+epoch 62
+Train Loss: 2.276771, Acc: 13.275556%
+Val Loss: 12.400728, Acc: 10.220000%
+epoch 63
+Train Loss: 2.276191, Acc: 13.360000%
+Val Loss: 7.239780, Acc: 10.500000%
+epoch 64
+Train Loss: 2.275596, Acc: 13.371111%
+Val Loss: 21.926493, Acc: 10.480000%
+epoch 65
+Train Loss: 2.274588, Acc: 13.591111%
+Val Loss: 32.297178, Acc: 10.500000%
+epoch 66
+Train Loss: 2.273458, Acc: 13.755556%
+Val Loss: 24.407372, Acc: 10.500000%
+epoch 67
+Train Loss: 2.274886, Acc: 13.526667%
+Val Loss: 13.174753, Acc: 10.220000%
+epoch 68
+Train Loss: 2.274250, Acc: 13.382222%
+Val Loss: 27.431030, Acc: 9.660000%
+epoch 69
+Train Loss: 2.273684, Acc: 13.386667%
+Val Loss: 14.144920, Acc: 10.500000%
+epoch 70
+Train Loss: 2.272165, Acc: 13.713333%
+Val Loss: 18.234571, Acc: 9.440000%
+epoch 71
+Train Loss: 2.273001, Acc: 13.531111%
+Val Loss: 19.600907, Acc: 10.480000%
+epoch 72
+Train Loss: 2.272714, Acc: 13.737778%
+Val Loss: 39.341352, Acc: 10.100000%
+epoch 73
+Train Loss: 2.272217, Acc: 13.680000%
+Val Loss: 74.854008, Acc: 9.420000%
+epoch 74
+Train Loss: 2.271467, Acc: 13.742222%
+Val Loss: 46.194909, Acc: 10.500000%
+epoch 75
+Train Loss: 2.271008, Acc: 13.671111%
+Val Loss: 38.630451, Acc: 10.500000%
+epoch 76
+Train Loss: 2.270785, Acc: 13.540000%
+Val Loss: 21.145856, Acc: 9.440000%
+epoch 77
+Train Loss: 2.269669, Acc: 13.693333%
+Val Loss: 54.004048, Acc: 10.220000%
+epoch 78
+Train Loss: 2.270046, Acc: 13.337778%
+Val Loss: 10.221387, Acc: 10.500000%
+epoch 79
+Train Loss: 2.269732, Acc: 13.748889%
+Val Loss: 56.706073, Acc: 10.500000%
+epoch 80
+Train Loss: 2.269753, Acc: 13.677778%
+Val Loss: 45.520958, Acc: 9.660000%
+epoch 81
+Train Loss: 2.268686, Acc: 13.784444%
+Val Loss: 17.237997, Acc: 9.260000%
+epoch 82
+Train Loss: 2.267334, Acc: 13.508889%
+Val Loss: 33.540591, Acc: 10.340000%
+epoch 83
+Train Loss: 2.266759, Acc: 13.722222%
+Val Loss: 32.155750, Acc: 10.500000%
+epoch 84
+Train Loss: 2.267450, Acc: 13.817778%
+Val Loss: 51.198347, Acc: 9.440000%
+epoch 85
+Train Loss: 2.265409, Acc: 13.768889%
+Val Loss: 22.471635, Acc: 10.140000%
+epoch 86
+Train Loss: 2.266017, Acc: 13.948889%
+Val Loss: 52.480248, Acc: 9.660000%
+epoch 87
+Train Loss: 2.265512, Acc: 13.846667%
+Val Loss: 81.485564, Acc: 10.500000%
+epoch 88
+Train Loss: 2.264787, Acc: 13.846667%
+Val Loss: 100.255548, Acc: 10.500000%
+epoch 89
+Train Loss: 2.263850, Acc: 14.142222%
+Val Loss: 64.105920, Acc: 10.500000%
+epoch 90
+Train Loss: 2.263050, Acc: 13.986667%
+Val Loss: 34.403898, Acc: 10.260000%
+epoch 91
+Train Loss: 2.262264, Acc: 14.095556%
+Val Loss: 27.807394, Acc: 10.200000%
+epoch 92
+Train Loss: 2.261422, Acc: 14.108889%
+Val Loss: 62.630502, Acc: 10.500000%
+epoch 93
+Train Loss: 2.261517, Acc: 13.884444%
+Val Loss: 26.241979, Acc: 9.440000%
+epoch 94
+Train Loss: 2.260255, Acc: 14.002222%
+Val Loss: 29.237357, Acc: 10.480000%
+epoch 95
+Train Loss: 2.260764, Acc: 14.031111%
+Val Loss: 26.712816, Acc: 10.480000%
+epoch 96
+Train Loss: 2.259219, Acc: 14.260000%
+Val Loss: 33.810328, Acc: 9.720000%
+epoch 97
+Train Loss: 2.256429, Acc: 14.337778%
+Val Loss: 28.232122, Acc: 10.260000%
+epoch 98
+Train Loss: 2.257156, Acc: 13.924444%
+Val Loss: 23.825478, Acc: 10.500000%
+epoch 99
+Train Loss: 2.257753, Acc: 14.088889%
+Val Loss: 44.437830, Acc: 9.440000%
+epoch 100
+Train Loss: 2.255664, Acc: 14.135556%
+Val Loss: 82.743655, Acc: 10.460000%
+Test Loss: 81.506866, Acc: 9.970000%
