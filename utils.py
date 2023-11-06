@@ -13,7 +13,8 @@ def multiclass_noisify(train_labels, P, random_state=1):
 
     for idx in np.arange(train_labels.shape[0]):
         i = train_labels[idx]
-        print(P[i, :])
+        if not isinstance(i, np.ndarray):
+            i = [i]
         flipped = flipper.multinomial(1, P[i, :][0], 1)[0]
         new_labels[idx] = np.where(flipped == 1)[0]
 
@@ -24,12 +25,17 @@ def noisify_multiclass_symmetric(train_labels, noise_rate, random_state=None, nb
     P = np.ones((nb_classes, nb_classes))
     P = (noise_rate / (nb_classes - 1)) * P
 
-    for i in range(nb_classes):
-        P[i, i] = 1. - noise_rate
+    if noise_rate >0.0:
+        for i in range(nb_classes):
+            P[i, i] = 1. - noise_rate
 
-    y_train_noisy = multiclass_noisify(train_labels, P=P, random_state=random_state)
+        y_train_noisy = multiclass_noisify(train_labels, P=P, random_state=random_state)
 
-    return  y_train_noisy
+        actual_noise = (y_train_noisy != train_labels).mean()
+        assert actual_noise > 0.0
+        train_labels = y_train_noisy
+
+    return  train_labels
 
 
 def dataset_split(train_images, train_labels, noise_rate=0.5, split_per=0.9, random_seed=1, num_classes=10):
@@ -48,4 +54,3 @@ def dataset_split(train_images, train_labels, noise_rate=0.5, split_per=0.9, ran
     train_labels, val_labels = noisy_label[train_set_index], noisy_label[val_set_index]
 
     return train_set, train_labels, val_set, val_labels
-

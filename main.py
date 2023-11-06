@@ -66,13 +66,14 @@ else:
                                 noise_rate=args.noise_rate, random_seed=args.seed)
 test_data = dataset.CIFAR10_test(transform=transform, target_transform=transform_target)
 
-model = models.ResNet18(args.num_classes)
-model = model.to(args.device)
-
 # Data Loader
 train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, drop_last=False)
 val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, drop_last=False)
 test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, drop_last=False)
+
+
+model = models.ResNet18(args.num_classes)
+model = model.to(args.device)
 
 # optimizer
 optimizer = optim.SGD(model.parameters(), lr=args.lr, weight_decay=args.weight_decay, momentum=0.9)
@@ -100,9 +101,9 @@ def mian():
         model.train()
         for imgs, labels in train_loader:
             imgs, labels = imgs.to(args.device), labels.to(args.device)
-            optimizer.zero_grad()
             output = model(imgs)
             loss = loss_func(output, labels)
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
