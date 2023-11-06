@@ -10,9 +10,11 @@ import dataset
 import torchvision.transforms as transforms
 import models
 from tqdm import tqdm
+import torch.backends.cudnn as cudnn
+from torch.optim.lr_scheduler import MultiStepLR
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--lr', type=float, help='initial learning rate', default=0.01)
+parser.add_argument('--lr', type=float, help='initial learning rate', default=0.1)
 parser.add_argument('--weight_decay', type=float, help='weight_decay for training', default=1e-4)
 parser.add_argument('--model_dir', type=str, help='dir to save model files', default='model')
 parser.add_argument('--prob_dir', type=str, help='dir to save output probability files', default='prob' )
@@ -23,12 +25,17 @@ parser.add_argument('--noise_rate', type = float, help = 'corruption rate, shoul
 parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--batch_size', type=int, default=128)
 parser.add_argument('--device', type=str, default='cpu')
-parser.add_argument('--processed', type=bool, default=True)
+parser.add_argument('--processed', type=bool, default=False)
 parser.add_argument('--num_workers', type=int, default=0)
 
 args = parser.parse_args()
 
-torch.manual_seed(args.seed)
+if args.seed is not None:
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    # cudnn.deterministic = True
+    cudnn.benchmark = True
+
 if torch.cuda.is_available():
     args.device = 'cuda'
     args.num_workers = 8
@@ -40,7 +47,6 @@ def transform_target(label):
     return target
 
 
-args.n_epoch = 100
 args.num_classes = 10
 transform = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
@@ -70,6 +76,7 @@ test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False, n
 
 # optimizer
 optimizer = optim.SGD(model.parameters(), lr=args.lr, weight_decay=args.weight_decay, momentum=0.9)
+scheduler = MultiStepLR(optimizer, milestones=[100, 150], gamma=0.1)
 
 # loss
 loss_func = nn.CrossEntropyLoss()
@@ -82,6 +89,7 @@ if not os.path.exists(model_save_dir):
 
 print('==> Start training..')
 def mian():
+    best_val_acc = 0.
     for epoch in tqdm(range(args.n_epoch)):
         print('epoch {}'.format(epoch + 1))
         # train
@@ -90,7 +98,7 @@ def mian():
         val_loss = 0.
         val_acc = 0.
         model.train()
-        for imgs, labels in tqdm(train_loader):
+        for imgs, labels in train_loader:
             imgs, labels = imgs.to(args.device), labels.to(args.device)
             optimizer.zero_grad()
             output = model(imgs)
@@ -101,6 +109,7 @@ def mian():
             pred = torch.max(F.softmax(output, dim=1), 1)[1]
             train_correct = (pred == labels).sum()
             train_acc += train_correct.item()
+        scheduler.step()
 
         with torch.no_grad():
             model.eval()
@@ -113,13 +122,21 @@ def mian():
                 val_correct = (pred == labels).sum()
                 val_acc += val_correct.item()
 
-        # save for processed data
-        torch.save(model.state_dict(), model_save_dir + '/' + 'processed_epoch_%d.pth' % (epoch + 1))
+        if args.processed:
+            model_file = 'processed_best_model.pth'
+        else:
+            model_file = 'best_model.pth'
+
+        if val_acc * 100 / (len(val_data)) > best_val_acc:
+            best_val_acc = val_acc * 100 / (len(val_data))
+            torch.save(model.state_dict(), model_save_dir + '/' + model_file)
+
         print('Train Loss: {:.6f}, Acc: {:.6f}%'.format(train_loss / (len(train_data))*args.batch_size, train_acc * 100 / (len(train_data))))
         print('Val Loss: {:.6f}, Acc: {:.6f}%'.format(val_loss / (len(val_data))*args.batch_size, val_acc * 100 / (len(val_data))))
 
     test_loss = 0.
     test_acc = 0.
+    model.load_state_dict(torch.load(model_save_dir + '/' + model_file))
     with torch.no_grad():
         model.eval()
         for imgs, labels in test_loader:
