@@ -87,11 +87,6 @@ class processed_CIFAR10(Data.Dataset):
         self.val_image = np.load(os.path.join(processed_dir, 'processed_val_images.npy'))
         self.val_label = np.load(os.path.join(label_dir, 'val_labels.npy'))
 
-        if self.train:
-            self.train_image = self.train_image.transpose((0, 2, 3, 1))
-        else:
-            self.val_image = self.val_image.transpose((0, 2, 3, 1))
-
     def __getitem__(self, index):
         if self.train:
             img, label = self.train_image[index], self.train_label[index]
@@ -99,6 +94,7 @@ class processed_CIFAR10(Data.Dataset):
             img, label = self.val_image[index], self.val_label[index]
 
         img = Image.fromarray(img.astype('uint8'))
+        img = img.resize((32, 32))
 
         if self.transform is not None:
             img = self.transform(img)
