@@ -25,12 +25,12 @@ parser.add_argument('--noise_rate', type=float, help='corruption rate, should be
 parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--batch_size', type=int, default=128)
 parser.add_argument('--device', type=str, default='cpu')
-parser.add_argument('--processed', type=bool, default=False)
-parser.add_argument('--distill', type=bool, default=False)
+parser.add_argument('--processed', type=bool, default=True)
+parser.add_argument('--distill', type=bool, default=True)
 parser.add_argument('--rho', type=float, default=0.1)
-parser.add_argument('--warmup_epochs', type=int, default=10)
+parser.add_argument('--warmup_epochs', type=int, default=30)
 # set to 0 if using cpu
-parser.add_argument('--num_workers', type=int, default=0)
+parser.add_argument('--num_workers', type=int, default=8)
 
 args = parser.parse_args()
 
@@ -73,8 +73,6 @@ elif args.distill:
                                noise_rate=args.noise_rate, random_seed=args.seed)
     processed_train_data = dataset.processed_CIFAR10(train=True, transform=transform, target_transform=transform_target)
     processed_val_data = dataset.processed_CIFAR10(train=False, transform=transform, target_transform=transform_target)
-    processed_train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
-                              drop_last=False)
     processed_val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
                             drop_last=False)
 else:
@@ -107,15 +105,15 @@ loss_func = loss_func.to(args.device)
 
 # model saving directory
 model_save_dir = args.model_dir + '/' + args.dataset + '/' + 'noise_rate_%s' % (args.noise_rate)
-distill_model_save_dir = args.model_dir + '/' + args.dataset + '/' + 'noise_rate_%s_%s' % (args.noise_rate, args.rho)
+distill_model_save_dir = args.model_dir + '/' + args.dataset + '/' + 'warm_up'
 if not os.path.exists(model_save_dir):
     os.system('mkdir -p %s' % (model_save_dir))
 if not os.path.exists(distill_model_save_dir):
     os.system('mkdir -p %s' % (distill_model_save_dir))
 
-print('==> Warmup for distillation..')
 # Warmup for distillation
 if args.distill:
+    print('==> Warmup for distillation..')
     best_acc = 0.
     for epoch in tqdm(range(args.warmup_epochs)):
         model.train()
@@ -150,17 +148,31 @@ if args.distill:
     distilled_examples_labels = []
     distilled_processed_examples_labels = []
 
-    print('==> Distillation..')
+    print('==> Distilling..')
     model.eval()
     for imgs, labels, indexes in distill_train_loader:
         imgs = imgs.to(args.device)
         output = model(imgs)
         pred = torch.max(F.softmax(output, dim=1), 1)
         mask = pred[0] > threshold
+        mask = mask.cpu()
         distilled_examples_index.extend(indexes[mask])
         distilled_examples_labels.extend(pred[1].cpu()[mask])
         distilled_processed_examples_index.extend(indexes[~mask])
-        distilled_processed_examples_labels.extend(pred[1].cpu()[~mask])
+        distilled_processed_examples_labels.extend(labels[~mask])
+    print('==> Distilling finished..')
+
+    # save distilled examples
+    distilled_examples_index = np.array(distilled_examples_index)
+    distilled_examples_labels = np.array(distilled_examples_labels)
+    distilled_processed_examples_index = np.array(distilled_processed_examples_index)
+    distilled_processed_examples_labels = np.array(distilled_processed_examples_labels)
+    distilled_imgs, distilled_processed_imgs = train_data.train_image[distilled_examples_index], processed_train_data.train_image[distilled_processed_examples_index]
+    distilled_clean_labels = train_data.clean_train_label[distilled_examples_index]
+    distilled_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
+    distilled_labels = np.concatenate((distilled_examples_labels, distilled_processed_examples_labels), axis=0)
+    print('Number of distilled examples: %d' % (len(distilled_examples_index)))
+    print(f'Accuracy of distilled examples collection: {(np.array(distilled_examples_labels) ==  np.array(distilled_clean_labels)).sum() / len(distilled_examples_labels)}')
 
 
 

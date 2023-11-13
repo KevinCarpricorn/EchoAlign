@@ -25,6 +25,8 @@ class CIFAR10(Data.Dataset):
             self.train_label = np.load(os.path.join(dir, 'train_labels.npy'))
             self.val_image = np.load(os.path.join(dir, 'val_images.npy'))
             self.val_label = np.load(os.path.join(dir, 'val_labels.npy'))
+            self.clean_train_label = np.load(os.path.join(dir, 'clean_train_labels.npy'))
+            self.clean_val_label = np.load(os.path.join(dir, 'clean_val_labels.npy'))
         else:
             # download dataset
             train_set = datasets.CIFAR10(root=dir, train=True, download=True, transform=transforms.ToTensor())
@@ -41,16 +43,19 @@ class CIFAR10(Data.Dataset):
             np.save(os.path.join(dir, 'test_labels.npy'), test_label)
 
             # split train dataset
-            self.train_image, self.train_label, self.val_image, self.val_label = utils.dataset_split(train_image,
-                                                                                                     train_label,
-                                                                                                     noise_rate,
-                                                                                                     split_per,
-                                                                                                     random_seed,
-                                                                                                     num_class)
+            self.train_image, self.train_label, self.val_image, self.val_label, self.clean_train_label, self.clean_val_label = utils.dataset_split(
+                train_image,
+                train_label,
+                noise_rate,
+                split_per,
+                random_seed,
+                num_class)
             np.save(os.path.join(dir, 'train_images.npy'), self.train_image)
             np.save(os.path.join(dir, 'train_labels.npy'), self.train_label)
             np.save(os.path.join(dir, 'val_images.npy'), self.val_image)
             np.save(os.path.join(dir, 'val_labels.npy'), self.val_label)
+            np.save(os.path.join(dir, 'clean_train_labels.npy'), self.clean_train_label)
+            np.save(os.path.join(dir, 'clean_val_labels.npy'), self.clean_val_label)
 
     def __getitem__(self, index):
         if self.train:
