@@ -11,6 +11,7 @@ import torchvision.transforms as transforms
 import models
 from tqdm import tqdm
 import torch.backends.cudnn as cudnn
+from utils import transform_target
 from torch.optim.lr_scheduler import MultiStepLR
 
 parser = argparse.ArgumentParser()
@@ -48,12 +49,6 @@ if torch.cuda.is_available():
 
 
 # dataset(cifar10)
-def transform_target(label):
-    label = np.array(label)
-    target = torch.from_numpy(label).long()
-    return target
-
-
 args.num_classes = 10
 transform = transforms.Compose([
     transforms.RandomCrop(32, padding=4),

@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from numpy.testing import assert_array_almost_equal
 
 def multiclass_noisify(train_labels, P, random_state=1):
@@ -56,3 +57,9 @@ def dataset_split(train_images, train_labels, noise_rate=0.5, split_per=0.9, ran
     clean_train_labels, clean_val_labels = clean_labels[train_set_index], clean_labels[val_set_index]
 
     return train_set, train_labels, val_set, val_labels, clean_train_labels, clean_val_labels
+
+
+def transform_target(label):
+    label = np.array(label)
+    target = torch.from_numpy(label).long()
+    return target
