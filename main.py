@@ -58,32 +58,28 @@ transform = transforms.Compose([
 ])
 
 print('==> Preparing data..')
+# data loading
 if args.processed:
-    train_data = dataset.processed_CIFAR10(train=True, transform=transform, target_transform=transform_target)
-    val_data = dataset.processed_CIFAR10(train=False, transform=transform, target_transform=transform_target)
-elif args.distill:
-    train_data = dataset.CIFAR10(train=True, transform=transform, target_transform=transform_target,
-                                 noise_rate=args.noise_rate, random_seed=args.seed)
-    val_data = dataset.CIFAR10(train=False, transform=transform, target_transform=transform_target,
-                               noise_rate=args.noise_rate, random_seed=args.seed)
+    dataset_function = dataset.processed_CIFAR10
+else:
+    dataset_function = dataset.CIFAR10
+
+train_data = dataset_function(train=True, transform=transform, target_transform=transform_target,
+                              noise_rate=getattr(args, 'noise_rate', None), random_seed=getattr(args, 'seed', None))
+val_data = dataset_function(train=False, transform=transform, target_transform=transform_target,
+                            noise_rate=getattr(args, 'noise_rate', None), random_seed=getattr(args, 'seed', None))
+
+if args.distill:
     processed_train_data = dataset.processed_CIFAR10(train=True, transform=transform, target_transform=transform_target)
     processed_val_data = dataset.processed_CIFAR10(train=False, transform=transform, target_transform=transform_target)
-else:
-    train_data = dataset.CIFAR10(train=True, transform=transform, target_transform=transform_target,
-                                 noise_rate=args.noise_rate, random_seed=args.seed)
-    val_data = dataset.CIFAR10(train=False, transform=transform, target_transform=transform_target,
-                               noise_rate=args.noise_rate, random_seed=args.seed)
+
 test_data = dataset.CIFAR10_test(transform=transform, target_transform=transform_target)
 
-# Data Loader
-train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers,
-                          drop_last=False)
-distill_train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
-                          drop_last=False)
-val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
-                        drop_last=False)
-test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
-                         drop_last=False)
+# data loader
+train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, drop_last=False)
+distill_train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, drop_last=False)
+val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, drop_last=False)
+test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, drop_last=False)
 
 model = models.ResNet18(args.num_classes)
 model = model.to(args.device)
