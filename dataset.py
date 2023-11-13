@@ -83,8 +83,10 @@ class processed_CIFAR10(Data.Dataset):
 
         # check existance of train dataset
         self.train_image = np.load(os.path.join(processed_dir, 'processed_train_images.npy'))
+        self.train_image = self.resize_images(self.train_image)
         self.train_label = np.load(os.path.join(label_dir, 'train_labels.npy'))
         self.val_image = np.load(os.path.join(processed_dir, 'processed_val_images.npy'))
+        self.val_image = self.resize_images(self.val_image)
         self.val_label = np.load(os.path.join(label_dir, 'val_labels.npy'))
 
     def __getitem__(self, index):
@@ -94,7 +96,6 @@ class processed_CIFAR10(Data.Dataset):
             img, label = self.val_image[index], self.val_label[index]
 
         img = Image.fromarray(img.astype('uint8'))
-        img = img.resize((32, 32))
 
         if self.transform is not None:
             img = self.transform(img)
@@ -106,6 +107,14 @@ class processed_CIFAR10(Data.Dataset):
 
     def __len__(self):
         return len(self.train_image) if self.train else len(self.val_image)
+
+    def resize_images(self, images, size=(32, 32)):
+        resized_images = np.empty((images.shape[0], size[0], size[1], images.shape[3]), dtype=np.uint8)
+        for i in range(images.shape[0]):
+            img = Image.fromarray(images[i].astype('uint8'))
+            img_resized = img.resize(size)
+            resized_images[i] = np.array(img_resized)
+        return resized_images
 
 
 class CIFAR10_test(Data.Dataset):
