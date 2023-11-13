@@ -66,7 +66,7 @@ class CIFAR10(Data.Dataset):
         if self.target_transform is not None:
             label = self.target_transform(label)
 
-        return img, label
+        return img, label, index
 
     def __len__(self):
         return len(self.train_image) if self.train else len(self.val_image)
@@ -102,7 +102,7 @@ class processed_CIFAR10(Data.Dataset):
         if self.target_transform is not None:
             label = self.target_transform(label)
 
-        return img, label
+        return img, label, index
 
     def __len__(self):
         return len(self.train_image) if self.train else len(self.val_image)
