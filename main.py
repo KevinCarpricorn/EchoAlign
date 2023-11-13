@@ -73,8 +73,6 @@ elif args.distill:
                                noise_rate=args.noise_rate, random_seed=args.seed)
     processed_train_data = dataset.processed_CIFAR10(train=True, transform=transform, target_transform=transform_target)
     processed_val_data = dataset.processed_CIFAR10(train=False, transform=transform, target_transform=transform_target)
-    processed_val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
-                            drop_last=False)
 else:
     train_data = dataset.CIFAR10(train=True, transform=transform, target_transform=transform_target,
                                  noise_rate=args.noise_rate, random_seed=args.seed)
@@ -148,7 +146,7 @@ if args.distill:
     distilled_examples_labels = []
     distilled_processed_examples_labels = []
 
-    print('==> Distilling..')
+    print('==> Distilling training set..')
     model.eval()
     for imgs, labels, indexes in distill_train_loader:
         imgs = imgs.to(args.device)
@@ -160,7 +158,7 @@ if args.distill:
         distilled_examples_labels.extend(pred[1].cpu()[mask])
         distilled_processed_examples_index.extend(indexes[~mask])
         distilled_processed_examples_labels.extend(labels[~mask])
-    print('==> Distilling finished..')
+    print('==> Distilling training set done..')
 
     # save distilled examples
     distilled_examples_index = np.array(distilled_examples_index)
@@ -169,13 +167,57 @@ if args.distill:
     distilled_processed_examples_labels = np.array(distilled_processed_examples_labels)
     distilled_imgs, distilled_processed_imgs = train_data.train_image[distilled_examples_index], processed_train_data.train_image[distilled_processed_examples_index]
     distilled_clean_labels = train_data.clean_train_label[distilled_examples_index]
-    distilled_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
-    distilled_labels = np.concatenate((distilled_examples_labels, distilled_processed_examples_labels), axis=0)
-    print('Number of distilled examples: %d' % (len(distilled_examples_index)))
-    print(f'Accuracy of distilled examples collection: {(np.array(distilled_examples_labels) ==  np.array(distilled_clean_labels)).sum() / len(distilled_examples_labels)}')
+    distilled_train_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
+    distilled_train_labels = np.concatenate((distilled_examples_labels, distilled_processed_examples_labels), axis=0)
+    print('Number of distilled training examples: %d' % (len(distilled_examples_index)))
+    print(f'Accuracy of distilled training examples collection: {(np.array(distilled_examples_labels) ==  np.array(distilled_clean_labels)).sum() * 100/ len(distilled_examples_labels)}%')
+    distilled_dataset_dir = './data/' + args.dataset + '/' + 'distilled_dataset'
+    if not os.path.exists(distilled_dataset_dir):
+        os.system('mkdir -p %s' % (distilled_dataset_dir))
+    np.save(distilled_dataset_dir + '/' + 'distilled_train_images.npy', distilled_train_imgs)
+    np.save(distilled_dataset_dir + '/' + 'distilled_train_labels.npy', distilled_train_labels)
 
+    print('==> Distilling validation set..')
+    distilled_examples_index = []
+    distilled_processed_examples_index = []
+    distilled_examples_labels = []
+    distilled_processed_examples_labels = []
 
+    model.eval()
+    for imgs, labels, indexes in val_loader:
+        imgs = imgs.to(args.device)
+        output = model(imgs)
+        pred = torch.max(F.softmax(output, dim=1), 1)
+        mask = pred[0] > threshold
+        mask = mask.cpu()
+        distilled_examples_index.extend(indexes[mask])
+        distilled_examples_labels.extend(pred[1].cpu()[mask])
+        distilled_processed_examples_index.extend(indexes[~mask])
+        distilled_processed_examples_labels.extend(labels[~mask])
+    print('==> Distilling validation set done..')
 
+    # save distilled examples
+    distilled_examples_index = np.array(distilled_examples_index)
+    distilled_examples_labels = np.array(distilled_examples_labels)
+    distilled_processed_examples_index = np.array(distilled_processed_examples_index)
+    distilled_processed_examples_labels = np.array(distilled_processed_examples_labels)
+    distilled_imgs, distilled_processed_imgs = val_data.val_image[distilled_examples_index], processed_val_data.val_image[distilled_processed_examples_index]
+    distilled_clean_labels = val_data.clean_val_label[distilled_examples_index]
+    distilled_val_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
+    distilled_val_labels = np.concatenate((distilled_examples_labels, distilled_processed_examples_labels), axis=0)
+    print('Number of distilled validation examples: %d' % (len(distilled_examples_index)))
+    print(f'Accuracy of distilled validation examples collection: {(np.array(distilled_examples_labels) ==  np.array(distilled_clean_labels)).sum() * 100/ len(distilled_examples_labels)}%')
+    np.save(distilled_dataset_dir + '/' + 'distilled_val_images.npy', distilled_val_imgs)
+    np.save(distilled_dataset_dir + '/' + 'distilled_val_labels.npy', distilled_val_labels)
+
+    print('==> Distilled dataset building..')
+    train_data = dataset.distilled_CIFAR10(train=True, transform=transform, target_transform=transform_target)
+    val_data = dataset.distilled_CIFAR10(train=False, transform=transform, target_transform=transform_target)
+    train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers,
+                                drop_last=False)
+    val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
+                                drop_last=False)
+    print('==> Distilled dataset building done..')
 
 print('==> Start training..')
 def mian():
