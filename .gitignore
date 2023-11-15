@@ -1,0 +1,8 @@
+data/
+model/
+backup/
+.idea/
+__pycache__/
+*.sh
+test.py
+
