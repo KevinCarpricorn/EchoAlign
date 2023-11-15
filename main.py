@@ -175,7 +175,9 @@ def mian():
                 val_correct = (pred == labels).sum()
                 val_acc += val_correct.item()
 
-        if args.processed:
+        if args.distill:
+            model_file = 'distilled_best_model.pth'
+        elif args.processed:
             model_file = 'processed_best_model.pth'
         else:
             model_file = 'best_model.pth'
