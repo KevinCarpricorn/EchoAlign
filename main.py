@@ -140,6 +140,16 @@ if args.distill:
     distill_dataset(model, val_loader, val_data, processed_val_data, threshold, args, distilled_dataset_dir,
                     "validation")
 
+    print('==> Distilled dataset building..')
+    train_data = dataset.distilled_CIFAR10(train=True, transform=transform, target_transform=transform_target)
+    val_data = dataset.distilled_CIFAR10(train=False, transform=transform, target_transform=transform_target)
+    train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers,
+                              drop_last=False)
+    val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
+                            drop_last=False)
+    print('==> Distilled dataset building done..')
+
+
 print('==> Start training..')
 def mian():
     best_val_acc = 0.

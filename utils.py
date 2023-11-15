@@ -92,9 +92,14 @@ def distill_dataset(model, data_loader, data, processed_data, threshold, args, d
     distilled_processed_examples_index = np.array(distilled_processed_examples_index)
     distilled_processed_examples_labels = np.array(distilled_processed_examples_labels)
 
-    distilled_imgs = data.train_image[distilled_examples_index]
-    distilled_processed_imgs = processed_data.train_image[distilled_processed_examples_index]
-    distilled_clean_labels = data.clean_train_label[distilled_examples_index]
+    if dataset_type == 'training':
+        distilled_imgs = data.train_image[distilled_examples_index]
+        distilled_processed_imgs = processed_data.train_image[distilled_processed_examples_index]
+        distilled_clean_labels = data.clean_train_label[distilled_examples_index]
+    else:
+        distilled_imgs = data.val_image[distilled_examples_index]
+        distilled_processed_imgs = processed_data.val_image[distilled_processed_examples_index]
+        distilled_clean_labels = data.clean_val_label[distilled_examples_index]
 
     distilled_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
     distilled_labels = np.concatenate((distilled_examples_labels, distilled_processed_examples_labels), axis=0)
