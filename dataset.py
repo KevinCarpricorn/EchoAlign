@@ -127,6 +127,7 @@ class distilled_CIFAR10(Data.Dataset):
         self.train = train
         self.transform = transform
         self.target_transform = target_transform
+        self.target_transform = target_transform
 
         distilled_dataset_dir = './data/cifar10/distilled_dataset'
         self.train_image = np.load(os.path.join(distilled_dataset_dir, 'distilled_train_images.npy'))

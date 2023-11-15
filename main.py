@@ -26,17 +26,13 @@ parser.add_argument('--noise_rate', type=float, help='corruption rate, should be
 parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--batch_size', type=int, default=128)
 parser.add_argument('--device', type=str, default='cpu')
-parser.add_argument('--processed', type=bool, default=True)
-parser.add_argument('--distill', type=bool, default=True)
+parser.add_argument('--mode', type=str, default='processed_only', choices=['distill_only', 'processed_only', 'raw_only'])
 parser.add_argument('--rho', type=float, default=0.1)
 parser.add_argument('--warmup_epochs', type=int, default=30)
 # set to 0 if using cpu
-parser.add_argument('--num_workers', type=int, default=8)
+parser.add_argument('--num_workers', type=int, default=0)
 
 args = parser.parse_args()
-
-if args.distill:
-    args.processed = False
 
 if args.seed is not None:
     np.random.seed(args.seed)
@@ -46,7 +42,6 @@ if args.seed is not None:
 if torch.cuda.is_available():
     args.device = 'cuda'
     args.num_workers = 8
-
 
 # dataset(cifar10)
 args.num_classes = 10
@@ -59,27 +54,37 @@ transform = transforms.Compose([
 
 print('==> Preparing data..')
 # data loading
-if args.processed:
+if args.mode == 'processed_only':
     dataset_function = dataset.processed_CIFAR10
-else:
+elif args.mode == 'distill_only':
     dataset_function = dataset.CIFAR10
-
-train_data = dataset_function(train=True, transform=transform, target_transform=transform_target,
-                              noise_rate=getattr(args, 'noise_rate', None), random_seed=getattr(args, 'seed', None))
-val_data = dataset_function(train=False, transform=transform, target_transform=transform_target,
-                            noise_rate=getattr(args, 'noise_rate', None), random_seed=getattr(args, 'seed', None))
-
-if args.distill:
     processed_train_data = dataset.processed_CIFAR10(train=True, transform=transform, target_transform=transform_target)
     processed_val_data = dataset.processed_CIFAR10(train=False, transform=transform, target_transform=transform_target)
+elif args.mode == 'raw_only':
+    dataset_function = dataset.CIFAR10
+
+if args.mode == 'processed_only':
+    train_data = dataset_function(train=True, transform=transform, target_transform=transform_target)
+    val_data = dataset_function(train=False, transform=transform, target_transform=transform_target)
+else:
+    train_data = dataset_function(train=True, transform=transform, target_transform=transform_target,
+                                  noise_rate=args.noise_rate, random_seed=args.seed)
+    val_data = dataset_function(train=False, transform=transform, target_transform=transform_target,
+                                noise_rate=args.noise_rate, random_seed=args.seed)
 
 test_data = dataset.CIFAR10_test(transform=transform, target_transform=transform_target)
 
 # data loader
-train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers, drop_last=False)
-distill_train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, drop_last=False)
-val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, drop_last=False)
-test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers, drop_last=False)
+train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers,
+                          drop_last=False)
+val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
+                        drop_last=False)
+test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
+                         drop_last=False)
+
+if args.mode == 'distill_only':
+    distill_train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=False,
+                                      num_workers=args.num_workers, drop_last=False)
 
 model = models.ResNet18(args.num_classes)
 model = model.to(args.device)
@@ -101,7 +106,7 @@ if not os.path.exists(distill_model_save_dir):
     os.system('mkdir -p %s' % (distill_model_save_dir))
 
 # Warmup for distillation
-if args.distill:
+if args.mode == 'distill_only':
     print('==> Warmup for distillation..')
     best_acc = 0.
     for epoch in tqdm(range(args.warmup_epochs)):
@@ -149,8 +154,9 @@ if args.distill:
                             drop_last=False)
     print('==> Distilled dataset building done..')
 
-
 print('==> Start training..')
+
+
 def mian():
     best_val_acc = 0.
     for epoch in tqdm(range(args.n_epoch)):
@@ -185,11 +191,11 @@ def mian():
                 val_correct = (pred == labels).sum()
                 val_acc += val_correct.item()
 
-        if args.distill:
+        if args.mode == 'distill_only':
             model_file = 'distilled_best_model.pth'
-        elif args.processed:
+        elif args.mode == 'processed_only':
             model_file = 'processed_best_model.pth'
-        else:
+        elif args.mode == 'raw_only':
             model_file = 'best_model.pth'
 
         if val_acc * 100 / (len(val_data)) > best_val_acc:
