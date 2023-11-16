@@ -11,9 +11,11 @@ import torchvision.transforms as transforms
 import models
 from tqdm import tqdm
 import torch.backends.cudnn as cudnn
-from utils import transform_target, distill_dataset, source_target_dataset
+from utils import *
 from torch.optim.lr_scheduler import MultiStepLR
 from tllib.utils.data import ForeverDataIterator
+from tllib.modules.domain_discriminator import DomainDiscriminator
+from tllib.alignment.dann import DomainAdversarialLoss
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--lr', type=float, help='initial learning rate', default=0.1)
@@ -30,6 +32,8 @@ parser.add_argument('--device', type=str, default='cpu')
 parser.add_argument('--mode', type=str, default='all', choices=['distill_only', 'processed_only', 'raw_only', 'all'])
 parser.add_argument('--rho', type=float, default=0.1)
 parser.add_argument('--warmup_epochs', type=int, default=30)
+parser.add_argument('--features_dim', type=int, default=512)
+parser.add_argument('--trade_off', type=float, default=1.0)
 # set to 0 if using cpu
 parser.add_argument('--num_workers', type=int, default=0)
 
@@ -89,14 +93,18 @@ if args.mode == 'distill_only' or args.mode == 'all':
 
 model = models.ResNet18(args.num_classes)
 model = model.to(args.device)
-
-# optimizer
-optimizer = optim.SGD(model.parameters(), lr=args.lr, weight_decay=args.weight_decay, momentum=0.9)
+if args.mode == 'all':
+    domain_discri = DomainDiscriminator(in_feature=args.features_dim, hidden_size=1024).to(args.device)
+    optimizer = optim.SGD(list(model.parameters()) + list(domain_discri.parameters()), lr=args.lr, weight_decay=args.weight_decay, momentum=0.9)
+else:
+    optimizer = optim.SGD(model.parameters(), lr=args.lr, weight_decay=args.weight_decay, momentum=0.9)
 scheduler = MultiStepLR(optimizer, milestones=[100, 150], gamma=0.1)
 
 # loss
 loss_func = nn.CrossEntropyLoss()
 loss_func = loss_func.to(args.device)
+if args.mode == 'all':
+    domain_adv = DomainAdversarialLoss(domain_discri).to(args.device)
 
 # model saving directory
 model_save_dir = args.model_dir + '/' + args.dataset + '/' + 'noise_rate_%s' % (args.noise_rate)
@@ -136,7 +144,8 @@ if not os.path.exists(warm_up_model):
                 torch.save(model.state_dict(), distill_model_save_dir + '/' + 'best_model.pth')
 
 threshold = (1 + args.rho) / 2
-model.load_state_dict(torch.load(distill_model_save_dir + '/' + 'best_model.pth'))
+if args.mode != 'raw_only' and args.mode != 'processed_only':
+    model.load_state_dict(torch.load(distill_model_save_dir + '/' + 'best_model.pth'))
 
 # distillation
 if args.mode == 'distill_only':
@@ -166,9 +175,9 @@ elif args.mode == 'all':
                     "validation")
 
     print('==> Source and target dataset building..')
-    source_data = dataset.source_CIFAR10(train=True, transform=transform, target_transform=transform_target)
+    source_data = dataset.source_CIFAR10(transform=transform, target_transform=transform_target)
     target_data = dataset.target_CIFAR10(transform=transform)
-    val_data = dataset.source_CIFAR10(train=False, transform=transform, target_transform=transform_target)
+    val_data = dataset.distilled_CIFAR10(train=False, transform=transform, target_transform=transform_target)
     source_loader = DataLoader(source_data, batch_size=int(args.batch_size/2), shuffle=True, num_workers=args.num_workers,
                                drop_last=False)
     target_loader = DataLoader(target_data, batch_size=int(args.batch_size/2), shuffle=True, num_workers=args.num_workers,
@@ -179,10 +188,6 @@ elif args.mode == 'all':
     print('==> Source and target dataset building done..')
 
 
-
-
-
-
 print('==> Start training..')
 
 
@@ -191,29 +196,18 @@ def mian():
     for epoch in tqdm(range(args.n_epoch)):
         print('epoch {}'.format(epoch + 1))
         # train
-        train_loss = 0.
-        train_acc = 0.
         val_loss = 0.
         val_acc = 0.
-        model.train()
-        for imgs, labels, _ in train_loader:
-            imgs, labels = imgs.to(args.device), labels.to(args.device)
-            output = model(imgs)
-            loss = loss_func(output, labels)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            train_loss += loss.item()
-            pred = torch.max(F.softmax(output, dim=1), 1)[1]
-            train_correct = (pred == labels).sum()
-            train_acc += train_correct.item()
-        scheduler.step()
+        if args.mode == 'all':
+            train_loss, train_acc, domain_acc = train_with_dann(model, source_loader, target_iter, optimizer, loss_func, domain_adv, args, scheduler)
+        else:
+            train_loss, train_acc = train(model, train_loader, optimizer, loss_func, args, scheduler)
 
         with torch.no_grad():
             model.eval()
             for imgs, labels, _ in val_loader:
                 imgs, labels = imgs.to(args.device), labels.to(args.device)
-                output = model(imgs)
+                output, _ = model(imgs)
                 loss = loss_func(output, labels)
                 val_loss += loss.item()
                 pred = torch.max(F.softmax(output, dim=1), 1)[1]
@@ -226,12 +220,19 @@ def mian():
             model_file = 'processed_best_model.pth'
         elif args.mode == 'raw_only':
             model_file = 'best_model.pth'
+        else:
+            model_file = 'dann_best_model.pth'
 
         if val_acc * 100 / (len(val_data)) > best_val_acc:
             best_val_acc = val_acc * 100 / (len(val_data))
             torch.save(model.state_dict(), model_save_dir + '/' + model_file)
 
-        print('Train Loss: {:.6f}, Acc: {:.6f}%'.format(train_loss / (len(train_data)) * args.batch_size,
+        if args.mode == 'all':
+            print('Train Loss: {:.6f}, Acc: {:.6f}%, Domain Acc: {:.6f}%'.format(train_loss / (len(train_data)) * args.batch_size,
+                                                        train_acc * 100 / (len(train_data)),
+                                                        domain_acc / (len(source_loader))))
+        else:
+            print('Train Loss: {:.6f}, Acc: {:.6f}%'.format(train_loss / (len(train_data)) * args.batch_size,
                                                         train_acc * 100 / (len(train_data))))
         print('Val Loss: {:.6f}, Acc: {:.6f}%'.format(val_loss / (len(val_data)) * args.batch_size,
                                                       val_acc * 100 / (len(val_data))))
@@ -243,7 +244,7 @@ def mian():
         model.eval()
         for imgs, labels in test_loader:
             imgs, labels = imgs.to(args.device), labels.to(args.device)
-            output = model(imgs)
+            output, _ = model(imgs)
             loss = loss_func(output, labels)
             test_loss += loss.item()
             pred = torch.max(F.softmax(output, dim=1), 1)[1]

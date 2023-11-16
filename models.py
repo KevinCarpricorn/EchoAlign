@@ -55,9 +55,9 @@ class ResNet(nn.Module):
         out = self.layer3(out)
         out = self.layer4(out)
         out = self.avgpool(out)
-        out = out.view(out.size(0), -1)
-        out = self.linear(out)
-        return out
+        feature = out.view(out.size(0), -1)
+        out = self.linear(feature)
+        return out, feature
 
 
 def ResNet18(num_classes):

@@ -76,7 +76,7 @@ def distill_dataset(model, data_loader, data, processed_data, threshold, args, d
 
     for imgs, labels, indexes in data_loader:
         imgs = imgs.to(args.device)
-        output = model(imgs)
+        output, _ = model(imgs)
         pred = torch.max(F.softmax(output, dim=1), 1)
         mask = pred[0] > threshold
         mask = mask.cpu()
@@ -124,7 +124,7 @@ def source_target_dataset(model, data_loader, data, processed_data, threshold, a
 
     for imgs, labels, indexes in data_loader:
         imgs = imgs.to(args.device)
-        output = model(imgs)
+        output, _ = model(imgs)
         pred = torch.max(F.softmax(output, dim=1), 1)
         mask = pred[0] > threshold
         mask = mask.cpu()
@@ -160,3 +160,57 @@ def source_target_dataset(model, data_loader, data, processed_data, threshold, a
     np.save(os.path.join(dataset_dir, f'source_labels.npy'), distilled_labels)
     np.save(os.path.join(dataset_dir, f'target_images.npy'), target_imgs)
     np.save(os.path.join(dataset_dir, f'classes.npy'), classes)
+
+
+def train(model, train_loader, optimizer, loss_func, args, scheduler):
+    model.train()
+    train_loss = 0.
+    train_acc = 0.
+    for imgs, labels, _ in train_loader:
+        imgs, labels = imgs.to(args.device), labels.to(args.device)
+        output, _ = model(imgs)
+        loss = loss_func(output, labels)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        train_loss += loss.item()
+        pred = torch.max(F.softmax(output, dim=1), 1)[1]
+        train_correct = (pred == labels).sum()
+        train_acc += train_correct.item()
+    scheduler.step()
+    return train_loss, train_acc
+
+
+def train_with_dann(model, source_loader, target_iter, optimizer, loss_func, domain_adv, args, scheduler):
+    model.train()
+    train_loss = 0.
+    train_acc = 0.
+    domain_acc = 0.
+    for imgs, labels, classes, _ in source_loader:
+        source_num = int(classes.sum().item())
+        sorted_indices = torch.argsort(classes, descending=True)
+        imgs, labels = imgs[sorted_indices], labels[sorted_indices]
+        target_imgs = next(target_iter)
+        imgs, labels, target_imgs = imgs.to(args.device), labels.to(args.device), target_imgs.to(args.device)
+        input = torch.cat((imgs, target_imgs), dim=0)
+        output, features = model(input)
+        source_output = output[:len(imgs)]
+        if source_num > len(input) / 2:
+            index = len(input) - source_num
+            source_features, target_features = features[:index], features[-index:]
+        else:
+            source_features, target_features = features[:source_num], features[-source_num:]
+        cls_loss = loss_func(source_output, labels)
+        transfer_loss = domain_adv(source_features, target_features)
+        loss = cls_loss + transfer_loss * args.trade_off
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        train_loss += loss.item()
+        pred = torch.max(F.softmax(source_output, dim=1), 1)[1]
+        train_correct = (pred == labels).sum()
+        train_acc += train_correct.item() # account
+        domain_acc += domain_adv.domain_discriminator_accuracy.item() # %
+    scheduler.step()
+    return train_loss, train_acc, domain_acc
+

@@ -155,8 +155,7 @@ class distilled_CIFAR10(Data.Dataset):
 
 
 class source_CIFAR10(Data.Dataset):
-    def __init__(self, train=True, transform=None, target_transform=None):
-        self.train = train
+    def __init__(self, transform=None, target_transform=None):
         self.transform = transform
         self.target_transform = target_transform
 
@@ -164,15 +163,9 @@ class source_CIFAR10(Data.Dataset):
         self.source_image = np.load(os.path.join(dataset_dir, 'source_images.npy'))
         self.source_label = np.load(os.path.join(dataset_dir, 'source_labels.npy'))
         self.classes = np.load(os.path.join(dataset_dir, 'classes.npy'))
-        self.val_image = np.load(os.path.join(dataset_dir, 'distilled_val_images.npy'))
-        self.val_label = np.load(os.path.join(dataset_dir, 'distilled_val_labels.npy'))
 
     def __getitem__(self, index):
-        if self.train:
-            img, label, cls = self.source_image[index], self.source_image[index], self.classes[index]
-        else:
-            img, label = self.val_image[index], self.val_label[index]
-            cls = None
+        img, label, cls = self.source_image[index], self.source_label[index], self.classes[index]
 
         img = Image.fromarray(img.astype('uint8'))
 
@@ -185,7 +178,7 @@ class source_CIFAR10(Data.Dataset):
         return img, label, cls, index
 
     def __len__(self):
-        return len(self.source_image) if self.train else len(self.val_image)
+        return len(self.source_image)
 
 
 class target_CIFAR10(Data.Dataset):
