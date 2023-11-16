@@ -113,3 +113,50 @@ def distill_dataset(model, data_loader, data, processed_data, threshold, args, d
     else:
         np.save(os.path.join(dataset_dir, f'distilled_val_images.npy'), distilled_imgs)
         np.save(os.path.join(dataset_dir, f'distilled_val_labels.npy'), distilled_labels)
+
+
+def source_target_dataset(model, data_loader, data, processed_data, threshold, args, dataset_dir):
+    print('==> building source and target dataset..')
+    model.eval()
+
+    distilled_examples_index, distilled_processed_examples_index = [], []
+    distilled_examples_labels, distilled_processed_examples_labels = [], []
+
+    for imgs, labels, indexes in data_loader:
+        imgs = imgs.to(args.device)
+        output = model(imgs)
+        pred = torch.max(F.softmax(output, dim=1), 1)
+        mask = pred[0] > threshold
+        mask = mask.cpu()
+        distilled_examples_index.extend(indexes[mask])
+        distilled_examples_labels.extend(pred[1].cpu()[mask])
+        distilled_processed_examples_index.extend(indexes[~mask])
+        distilled_processed_examples_labels.extend(labels[~mask])
+    print('==> building source and target dataset done..')
+
+    # Process and save distilled examples
+    distilled_examples_index = np.array(distilled_examples_index)
+    distilled_examples_labels = np.array(distilled_examples_labels)
+    distilled_processed_examples_index = np.array(distilled_processed_examples_index)
+    distilled_processed_examples_labels = np.array(distilled_processed_examples_labels)
+
+    target_examples_num = len(distilled_processed_examples_index) - len(distilled_examples_index)
+    traget_examples_index = np.random.choice(distilled_processed_examples_index, target_examples_num, replace=False)
+
+    distilled_imgs = data.train_image[distilled_examples_index]
+    distilled_processed_imgs = processed_data.train_image[distilled_processed_examples_index]
+    target_imgs = data.train_image[traget_examples_index]
+    distilled_clean_labels = data.clean_train_label[distilled_examples_index]
+
+    distilled_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
+    distilled_labels = np.concatenate((distilled_examples_labels, distilled_processed_examples_labels), axis=0)
+    classes = np.concatenate((np.zeros(len(distilled_examples_index)), np.ones(len(distilled_processed_examples_index))), axis=0)
+
+    print(f'Number of distilled training examples: {len(distilled_examples_index)}')
+    print(f'Accuracy of distilled training examples collection: {(np.array(distilled_examples_labels) == np.array(distilled_clean_labels)).sum() * 100 / len(distilled_examples_labels)}%')
+    print(f'Number of target domain examples: {len(traget_examples_index) + len(distilled_examples_index)}')
+
+    np.save(os.path.join(dataset_dir, f'source_images.npy'), distilled_imgs)
+    np.save(os.path.join(dataset_dir, f'source_labels.npy'), distilled_labels)
+    np.save(os.path.join(dataset_dir, f'target_images.npy'), target_imgs)
+    np.save(os.path.join(dataset_dir, f'classes.npy'), classes)

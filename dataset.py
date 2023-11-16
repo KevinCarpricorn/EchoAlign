@@ -127,7 +127,6 @@ class distilled_CIFAR10(Data.Dataset):
         self.train = train
         self.transform = transform
         self.target_transform = target_transform
-        self.target_transform = target_transform
 
         distilled_dataset_dir = './data/cifar10/distilled_dataset'
         self.train_image = np.load(os.path.join(distilled_dataset_dir, 'distilled_train_images.npy'))
@@ -155,6 +154,59 @@ class distilled_CIFAR10(Data.Dataset):
         return len(self.train_image) if self.train else len(self.val_image)
 
 
+class source_CIFAR10(Data.Dataset):
+    def __init__(self, train=True, transform=None, target_transform=None):
+        self.train = train
+        self.transform = transform
+        self.target_transform = target_transform
+
+        dataset_dir = './data/cifar10/source_target_dataset'
+        self.source_image = np.load(os.path.join(dataset_dir, 'source_images.npy'))
+        self.source_label = np.load(os.path.join(dataset_dir, 'source_labels.npy'))
+        self.classes = np.load(os.path.join(dataset_dir, 'classes.npy'))
+        self.val_image = np.load(os.path.join(dataset_dir, 'distilled_val_images.npy'))
+        self.val_label = np.load(os.path.join(dataset_dir, 'distilled_val_labels.npy'))
+
+    def __getitem__(self, index):
+        if self.train:
+            img, label, cls = self.source_image[index], self.source_image[index], self.classes[index]
+        else:
+            img, label = self.val_image[index], self.val_label[index]
+            cls = None
+
+        img = Image.fromarray(img.astype('uint8'))
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        if self.target_transform is not None:
+            label = self.target_transform(label)
+
+        return img, label, cls, index
+
+    def __len__(self):
+        return len(self.source_image) if self.train else len(self.val_image)
+
+
+class target_CIFAR10(Data.Dataset):
+    def __init__(self, transform=None):
+        self.transform = transform
+
+        dataset_dir = './data/cifar10/source_target_dataset'
+        self.target_image = np.load(os.path.join(dataset_dir, 'target_images.npy'))
+
+    def __getitem__(self, index):
+        img = self.target_image[index]
+
+        img = Image.fromarray(img.astype('uint8'))
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        return img
+
+    def __len__(self):
+        return len(self.target_image)
 
 
 class CIFAR10_test(Data.Dataset):
@@ -180,4 +232,3 @@ class CIFAR10_test(Data.Dataset):
 
     def __len__(self):
         return len(self.test_image)
-

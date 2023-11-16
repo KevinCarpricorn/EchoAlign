@@ -11,8 +11,9 @@ import torchvision.transforms as transforms
 import models
 from tqdm import tqdm
 import torch.backends.cudnn as cudnn
-from utils import transform_target, distill_dataset
+from utils import transform_target, distill_dataset, source_target_dataset
 from torch.optim.lr_scheduler import MultiStepLR
+from tllib.utils.data import ForeverDataIterator
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--lr', type=float, help='initial learning rate', default=0.1)
@@ -26,7 +27,7 @@ parser.add_argument('--noise_rate', type=float, help='corruption rate, should be
 parser.add_argument('--seed', type=int, default=1)
 parser.add_argument('--batch_size', type=int, default=128)
 parser.add_argument('--device', type=str, default='cpu')
-parser.add_argument('--mode', type=str, default='processed_only', choices=['distill_only', 'processed_only', 'raw_only'])
+parser.add_argument('--mode', type=str, default='all', choices=['distill_only', 'processed_only', 'raw_only', 'all'])
 parser.add_argument('--rho', type=float, default=0.1)
 parser.add_argument('--warmup_epochs', type=int, default=30)
 # set to 0 if using cpu
@@ -56,7 +57,7 @@ print('==> Preparing data..')
 # data loading
 if args.mode == 'processed_only':
     dataset_function = dataset.processed_CIFAR10
-elif args.mode == 'distill_only':
+elif args.mode == 'distill_only' or args.mode == 'all':
     dataset_function = dataset.CIFAR10
     processed_train_data = dataset.processed_CIFAR10(train=True, transform=transform, target_transform=transform_target)
     processed_val_data = dataset.processed_CIFAR10(train=False, transform=transform, target_transform=transform_target)
@@ -82,7 +83,7 @@ val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num
 test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
                          drop_last=False)
 
-if args.mode == 'distill_only':
+if args.mode == 'distill_only' or args.mode == 'all':
     distill_train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=False,
                                       num_workers=args.num_workers, drop_last=False)
 
@@ -105,9 +106,9 @@ if not os.path.exists(model_save_dir):
 if not os.path.exists(distill_model_save_dir):
     os.system('mkdir -p %s' % (distill_model_save_dir))
 
-# Warmup for distillation
-if args.mode == 'distill_only':
-    print('==> Warmup for distillation..')
+print('==> Warmup for distillation..')
+warm_up_model = './model/cifar10/warm_up/best_model.pth'
+if not os.path.exists(warm_up_model):
     best_acc = 0.
     for epoch in tqdm(range(args.warmup_epochs)):
         model.train()
@@ -134,9 +135,12 @@ if args.mode == 'distill_only':
                 best_acc = val_acc
                 torch.save(model.state_dict(), distill_model_save_dir + '/' + 'best_model.pth')
 
+threshold = (1 + args.rho) / 2
+model.load_state_dict(torch.load(distill_model_save_dir + '/' + 'best_model.pth'))
+
+# distillation
+if args.mode == 'distill_only':
     # distillation
-    threshold = (1 + args.rho) / 2
-    model.load_state_dict(torch.load(distill_model_save_dir + '/' + 'best_model.pth'))
     distilled_dataset_dir = os.path.join('./data', args.dataset, 'distilled_dataset')
     os.makedirs(distilled_dataset_dir, exist_ok=True)
 
@@ -153,6 +157,31 @@ if args.mode == 'distill_only':
     val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
                             drop_last=False)
     print('==> Distilled dataset building done..')
+elif args.mode == 'all':
+    tf_dataset_dir = os.path.join('./data', args.dataset, 'source_target_dataset')
+    os.makedirs(tf_dataset_dir, exist_ok=True)
+
+    source_target_dataset(model, distill_train_loader, train_data, processed_train_data, threshold, args, tf_dataset_dir)
+    distill_dataset(model, val_loader, val_data, processed_val_data, threshold, args, tf_dataset_dir,
+                    "validation")
+
+    print('==> Source and target dataset building..')
+    source_data = dataset.source_CIFAR10(train=True, transform=transform, target_transform=transform_target)
+    target_data = dataset.target_CIFAR10(transform=transform)
+    val_data = dataset.source_CIFAR10(train=False, transform=transform, target_transform=transform_target)
+    source_loader = DataLoader(source_data, batch_size=int(args.batch_size/2), shuffle=True, num_workers=args.num_workers,
+                               drop_last=False)
+    target_loader = DataLoader(target_data, batch_size=int(args.batch_size/2), shuffle=True, num_workers=args.num_workers,
+                                 drop_last=False)
+    val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
+                            drop_last=False)
+    target_iter = ForeverDataIterator(target_loader)
+    print('==> Source and target dataset building done..')
+
+
+
+
+
 
 print('==> Start training..')
 
