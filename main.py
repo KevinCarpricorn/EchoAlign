@@ -47,6 +47,7 @@ if args.seed is not None:
 if torch.cuda.is_available():
     args.device = 'cuda'
     args.num_workers = 8
+    torch.cuda.manual_seed_all(args.seed)
 
 # dataset(cifar10)
 args.num_classes = 10
@@ -116,7 +117,7 @@ if not os.path.exists(distill_model_save_dir):
     os.system('mkdir -p %s' % (distill_model_save_dir))
 
 print('==> Warmup for distillation..')
-warm_up_model = './model/cifar10/warm_up/best_model.pth'
+warm_up_model = os.path.join(distill_model_save_dir, 'best_model.pth')
 if not os.path.exists(warm_up_model):
     best_acc = 0.
     for epoch in tqdm(range(args.warmup_epochs)):
@@ -141,11 +142,11 @@ if not os.path.exists(warm_up_model):
                 f'Warm up Epoch {epoch + 1} Validation Accuracy on the {len(val_data)} test data: {val_acc * 100 / (len(val_data)):.4f}')
             if val_acc > best_acc:
                 best_acc = val_acc
-                torch.save(model.state_dict(), distill_model_save_dir + '/' + 'best_model.pth')
+                torch.save(model.state_dict(), warm_up_model)
 
 threshold = (1 + args.rho) / 2
 if args.mode != 'raw_only' and args.mode != 'processed_only':
-    model.load_state_dict(torch.load(distill_model_save_dir + '/' + 'best_model.pth'))
+    model.load_state_dict(torch.load(warm_up_model))
 
 # distillation
 if args.mode == 'distill_only':
@@ -178,7 +179,7 @@ elif args.mode == 'all':
     print('==> Source and target dataset building..')
     source_data = dataset.source_CIFAR10(transform=transform, target_transform=transform_target)
     target_data = dataset.target_CIFAR10(transform=transform)
-    val_data = dataset.distilled_CIFAR10(train=False, transform=transform, target_transform=transform_target)
+    val_data = dataset.distilled_CIFAR10(train=False, transform=transform, target_transform=transform_target, dir=tf_dataset_dir)
     source_loader = DataLoader(source_data, batch_size=int(args.batch_size / 2), shuffle=True,
                                num_workers=args.num_workers,
                                drop_last=False)
@@ -256,6 +257,18 @@ def mian():
             test_acc += test_correct.item()
     print('Test Loss: {:.6f}, Acc: {:.6f}%'.format(test_loss / (len(test_data)) * args.batch_size,
                                                    test_acc * 100 / (len(test_data))))
+
+    # send message to wechat
+    import requests
+    headers = {
+        "Authorization": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjMwOTQsInV1aWQiOiI4NTMwZDdkMC0yNzY2LTQwNWEtYmUwZS1mOGQyZDM3NmEyMzQiLCJpc19hZG1pbiI6ZmFsc2UsImJhY2tzdGFnZV9yb2xlIjoiIiwiaXNfc3VwZXJfYWRtaW4iOmZhbHNlLCJzdWJfbmFtZSI6IiIsInRlbmFudCI6ImF1dG9kbCIsInVwayI6IiJ9.t3ygs-AMq-EkGan_vHiGyH1mkpGomZ-UaO7okmIZIn-W7wH7iPHG6m4h0uYUgQ5tMVomHaMV-clMCOfDCB5fXg"}
+    resp = requests.post("https://www.autodl.com/api/v1/wechat/message/send",
+                         json={
+                             "title": "experiments",
+                             "name": "实验测试结果",
+                             "content": 'Test Loss: {:.6f}, Acc: {:.6f}%'.format(test_loss / (len(test_data)) * args.batch_size,
+                                                   test_acc * 100 / (len(test_data)))
+                         }, headers=headers)
 
 
 if __name__ == '__main__':

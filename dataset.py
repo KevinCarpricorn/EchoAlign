@@ -123,16 +123,21 @@ class processed_CIFAR10(Data.Dataset):
 
 
 class distilled_CIFAR10(Data.Dataset):
-    def __init__(self, train=True, transform=None, target_transform=None):
+    def __init__(self, train=True, transform=None, target_transform=None, dir=None):
         self.train = train
         self.transform = transform
         self.target_transform = target_transform
 
-        distilled_dataset_dir = './data/cifar10/distilled_dataset'
-        self.train_image = np.load(os.path.join(distilled_dataset_dir, 'distilled_train_images.npy'))
-        self.train_label = np.load(os.path.join(distilled_dataset_dir, 'distilled_train_labels.npy'))
-        self.val_image = np.load(os.path.join(distilled_dataset_dir, 'distilled_val_images.npy'))
-        self.val_label = np.load(os.path.join(distilled_dataset_dir, 'distilled_val_labels.npy'))
+        if dir is None:
+            distilled_dataset_dir = './data/cifar10/distilled_dataset'
+            self.train_image = np.load(os.path.join(distilled_dataset_dir, 'distilled_train_images.npy'))
+            self.train_label = np.load(os.path.join(distilled_dataset_dir, 'distilled_train_labels.npy'))
+            self.val_image = np.load(os.path.join(distilled_dataset_dir, 'distilled_val_images.npy'))
+            self.val_label = np.load(os.path.join(distilled_dataset_dir, 'distilled_val_labels.npy'))
+        else:
+            distilled_dataset_dir = dir
+            self.val_image = np.load(os.path.join(distilled_dataset_dir, 'distilled_val_images.npy'))
+            self.val_label = np.load(os.path.join(distilled_dataset_dir, 'distilled_val_labels.npy'))
 
     def __getitem__(self, index):
         if self.train:
