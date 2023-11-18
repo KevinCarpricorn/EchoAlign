@@ -190,16 +190,16 @@ def train_with_dann(model, source_loader, target_iter, optimizer, loss_func, dom
         source_num = int(classes.sum().item())
         sorted_indices = torch.argsort(classes, descending=True)
         imgs, labels = imgs[sorted_indices], labels[sorted_indices]
-        target_imgs = next(target_iter)
-        imgs, labels, target_imgs = imgs.to(args.device), labels.to(args.device), target_imgs.to(args.device)
-        input = torch.cat((imgs, target_imgs), dim=0)
+        if source_num - (len(imgs) - source_num) > 0:
+            target_imgs = target_iter.get_data(source_num - (len(imgs) - source_num))
+            imgs, labels, target_imgs = imgs.to(args.device), labels.to(args.device), target_imgs.to(args.device)
+            input = torch.cat((imgs, target_imgs), dim=0)
+        else:
+            imgs, labels = imgs.to(args.device), labels.to(args.device)
+            input = imgs
         output, features = model(input)
         source_output = output[:len(imgs)]
-        if source_num > len(input) / 2:
-            index = len(input) - source_num
-            source_features, target_features = features[:index], features[-index:]
-        else:
-            source_features, target_features = features[:source_num], features[-source_num:]
+        source_features, target_features = features[:source_num], features[-source_num:]
         cls_loss = loss_func(source_output, labels)
         transfer_loss = domain_adv(source_features, target_features)
         loss = cls_loss + transfer_loss * args.trade_off
@@ -213,4 +213,3 @@ def train_with_dann(model, source_loader, target_iter, optimizer, loss_func, dom
         domain_acc += domain_adv.domain_discriminator_accuracy.item() # %
     scheduler.step()
     return train_loss, train_acc, domain_acc
-

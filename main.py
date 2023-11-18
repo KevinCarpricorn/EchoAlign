@@ -183,12 +183,12 @@ elif args.mode == 'all':
     source_loader = DataLoader(source_data, batch_size=int(args.batch_size / 2), shuffle=True,
                                num_workers=args.num_workers,
                                drop_last=False)
-    target_loader = DataLoader(target_data, batch_size=int(args.batch_size / 2), shuffle=True,
+    target_loader = DataLoader(target_data, batch_size=1, shuffle=True,
                                num_workers=args.num_workers,
                                drop_last=False)
     val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
                             drop_last=False)
-    target_iter = ForeverDataIterator(target_loader)
+    target_iter = dataset.CustomDataIterator(target_loader)
     print('==> Source and target dataset building done..')
 
 print('==> Start training..')
@@ -257,18 +257,6 @@ def mian():
             test_acc += test_correct.item()
     print('Test Loss: {:.6f}, Acc: {:.6f}%'.format(test_loss / (len(test_data)) * args.batch_size,
                                                    test_acc * 100 / (len(test_data))))
-
-    # send message to wechat
-    import requests
-    headers = {
-        "Authorization": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjMwOTQsInV1aWQiOiI4NTMwZDdkMC0yNzY2LTQwNWEtYmUwZS1mOGQyZDM3NmEyMzQiLCJpc19hZG1pbiI6ZmFsc2UsImJhY2tzdGFnZV9yb2xlIjoiIiwiaXNfc3VwZXJfYWRtaW4iOmZhbHNlLCJzdWJfbmFtZSI6IiIsInRlbmFudCI6ImF1dG9kbCIsInVwayI6IiJ9.t3ygs-AMq-EkGan_vHiGyH1mkpGomZ-UaO7okmIZIn-W7wH7iPHG6m4h0uYUgQ5tMVomHaMV-clMCOfDCB5fXg"}
-    resp = requests.post("https://www.autodl.com/api/v1/wechat/message/send",
-                         json={
-                             "title": "experiments",
-                             "name": "实验测试结果",
-                             "content": 'Test Loss: {:.6f}, Acc: {:.6f}%'.format(test_loss / (len(test_data)) * args.batch_size,
-                                                   test_acc * 100 / (len(test_data)))
-                         }, headers=headers)
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 import os
 import utils
+import torch
 
 
 class CIFAR10(Data.Dataset):
@@ -230,3 +231,20 @@ class CIFAR10_test(Data.Dataset):
 
     def __len__(self):
         return len(self.test_image)
+
+
+class CustomDataIterator:
+    def __init__(self, data_loader):
+        self.data_loader = data_loader
+        self.iterator = iter(self.data_loader)
+
+    def get_data(self, num):
+        data = []
+        for _ in range(num):
+            try:
+                data.append(next(self.iterator))
+            except StopIteration:
+                self.iterator = iter(self.data_loader)
+                data.append(next(self.iterator))
+        data = torch.cat(data, dim=0)
+        return data
