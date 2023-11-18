@@ -1,10 +1,6 @@
-import os
-import torch
-import numpy as np
-import argparse
+from args_parser import parse_args
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import dataset
 import torchvision.transforms as transforms
@@ -17,27 +13,7 @@ from tllib.utils.data import ForeverDataIterator
 from tllib.modules.domain_discriminator import DomainDiscriminator
 from tllib.alignment.dann import DomainAdversarialLoss
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--lr', type=float, help='initial learning rate', default=0.1)
-parser.add_argument('--weight_decay', type=float, help='weight_decay for training', default=1e-4)
-parser.add_argument('--model_dir', type=str, help='dir to save model files', default='model')
-parser.add_argument('--prob_dir', type=str, help='dir to save output probability files', default='prob')
-parser.add_argument('--dataset', type=str, help='mnist, cifar10, or cifar100', default='cifar10')
-parser.add_argument('--n_epoch', type=int, default=200)
-parser.add_argument('--num_classes', type=int, default=10)
-parser.add_argument('--noise_rate', type=float, help='corruption rate, should be less than 1', default=0.5)
-parser.add_argument('--seed', type=int, default=1)
-parser.add_argument('--batch_size', type=int, default=128)
-parser.add_argument('--device', type=str, default='cpu')
-parser.add_argument('--mode', type=str, default='all', choices=['distill_only', 'processed_only', 'raw_only', 'all'])
-parser.add_argument('--rho', type=float, default=0.1)
-parser.add_argument('--warmup_epochs', type=int, default=30)
-parser.add_argument('--features_dim', type=int, default=512)
-parser.add_argument('--trade_off', type=float, default=1.0)
-# set to 0 if using cpu
-parser.add_argument('--num_workers', type=int, default=0)
-
-args = parser.parse_args()
+args = parse_args()
 
 if args.seed is not None:
     np.random.seed(args.seed)
@@ -92,6 +68,7 @@ if args.mode == 'distill_only' or args.mode == 'all':
     distill_train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=False,
                                       num_workers=args.num_workers, drop_last=False)
 
+# set up model
 model = models.ResNet18(args.num_classes)
 model = model.to(args.device)
 if args.mode == 'all':
@@ -111,10 +88,8 @@ if args.mode == 'all':
 # model saving directory
 model_save_dir = args.model_dir + '/' + args.dataset + '/' + 'noise_rate_%s' % (args.noise_rate)
 distill_model_save_dir = args.model_dir + '/' + args.dataset + '/' + 'warm_up'
-if not os.path.exists(model_save_dir):
-    os.system('mkdir -p %s' % (model_save_dir))
-if not os.path.exists(distill_model_save_dir):
-    os.system('mkdir -p %s' % (distill_model_save_dir))
+os.makedirs(model_save_dir, exist_ok=True)
+os.makedirs(distill_model_save_dir, exist_ok=True)
 
 print('==> Warmup for distillation..')
 warm_up_model = os.path.join(distill_model_save_dir, 'best_model.pth')
