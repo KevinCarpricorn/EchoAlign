@@ -25,15 +25,6 @@ epoch 4
   2%|██                                                                                                    | 4/200 [03:32<2:52:22, 52.77s/it]Train Loss: 1.825851, Acc: 92.033333%, Domain Acc: 59.723154%
 Val Loss: 0.264393, Acc: 92.360000%
 epoch 5
-^C
-(kevin) root@autodl-container-d3b04ab49f-11e082f8:~/autodl-tmp# tail -f train.log
-epoch 3
-  2%|█▌                                                                                                    | 3/200 [02:38<2:51:34, 52.26s/it]Train Loss: 1.886159, Acc: 91.108889%, Domain Acc: 60.857721%
-Val Loss: 0.293335, Acc: 91.280000%
-epoch 4
-  2%|██                                                                                                    | 4/200 [03:32<2:52:22, 52.77s/it]Train Loss: 1.825851, Acc: 92.033333%, Domain Acc: 59.723154%
-Val Loss: 0.264393, Acc: 92.360000%
-epoch 5
   2%|██▌                                                                                                   | 5/200 [04:25<2:52:01, 52.93s/it]Train Loss: 1.787508, Acc: 92.697778%, Domain Acc: 58.715783%
 Val Loss: 0.280071, Acc: 91.880000%
 epoch 6
