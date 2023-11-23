@@ -1,8 +1,10 @@
+import os
+
 import numpy as np
 import torch
-from numpy.testing import assert_array_almost_equal
 import torch.nn.functional as F
-import os
+from numpy.testing import assert_array_almost_equal
+
 
 def multiclass_noisify(train_labels, P, random_state=1):
     assert P.shape[0] == P.shape[1]
@@ -183,6 +185,7 @@ def train(model, train_loader, optimizer, loss_func, args, scheduler):
 
 def train_with_dann(model, source_loader, target_iter, optimizer, loss_func, domain_adv, args, scheduler):
     model.train()
+    domain_adv.train()
     train_loss = 0.
     train_acc = 0.
     domain_acc = 0.
@@ -213,3 +216,41 @@ def train_with_dann(model, source_loader, target_iter, optimizer, loss_func, dom
         domain_acc += domain_adv.domain_discriminator_accuracy.item() # %
     scheduler.step()
     return train_loss, train_acc, domain_acc
+
+
+def train_with_mdd(model, adv, source_loader, target_iter, optimizer, loss_func, mdd, args, scheduler):
+    model.train()
+    mdd.train()
+    adv.train()
+    train_loss = 0.
+    train_acc = 0.
+    for imgs, labels, classes, _ in source_loader:
+        source_num = int(classes.sum().item())
+        img_num = len(imgs)
+        sorted_indices = torch.argsort(classes, descending=True)
+        imgs, labels = imgs[sorted_indices], labels[sorted_indices]
+        if source_num - (img_num - source_num) > 0:
+            target_imgs = target_iter.get_data(source_num - (img_num - source_num))
+            imgs, labels, target_imgs = imgs.to(args.device), labels.to(args.device), target_imgs.to(args.device)
+            input = torch.cat((imgs, target_imgs), dim=0)
+        else:
+            imgs, labels = imgs.to(args.device), labels.to(args.device)
+            input = imgs
+        output, features = model(input)
+        outputs_adv = adv(features)
+        source_output = output[:img_num]
+        source_adv, target_adv = outputs_adv[:source_num], outputs_adv[-source_num:]
+        y_s, y_t = output[:source_num], output[-source_num:]
+        cls_loss = loss_func(source_output, labels)
+        transfer_loss = -mdd(y_s, source_adv, y_t, target_adv)
+        loss = cls_loss + transfer_loss * args.trade_off
+        optimizer.zero_grad()
+        adv.step()
+        loss.backward()
+        optimizer.step()
+        train_loss += loss.item()
+        pred = torch.max(F.softmax(source_output, dim=1), 1)[1]
+        train_correct = (pred == labels).sum()
+        train_acc += train_correct.item()
+    scheduler.step()
+    return train_loss, train_acc

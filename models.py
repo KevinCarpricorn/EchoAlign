@@ -1,6 +1,7 @@
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+from tllib.modules.grl import WarmStartGradientReverseLayer
 
 
 class BasicBlock(nn.Module):
@@ -13,10 +14,10 @@ class BasicBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
 
         self.shortcut = nn.Sequential()
-        if stride != 1 or in_planes != self.expansion*planes:
+        if stride != 1 or in_planes != self.expansion * planes:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(in_planes, self.expansion*planes, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(self.expansion*planes)
+                nn.Conv2d(in_planes, self.expansion * planes, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(self.expansion * planes)
             )
 
     def forward(self, x):
@@ -58,6 +59,38 @@ class ResNet(nn.Module):
         feature = out.view(out.size(0), -1)
         out = self.linear(feature)
         return out, feature
+
+
+class adversarial(nn.Module):
+    def __init__(self, in_feature, hidden_size, width, num_classes):
+        super(adversarial, self).__init__()
+        self.num_classes = num_classes
+        self.bottleneck = nn.Sequential(
+            nn.Linear(in_feature, hidden_size),
+            nn.BatchNorm1d(hidden_size),
+            nn.ReLU(),
+        )
+        self.bottleneck[1].weight.data.normal_(0, 0.005)
+        self.bottleneck[1].bias.data.fill_(0.1)
+        self.head = nn.Sequential(
+            nn.Linear(hidden_size, width),
+            nn.ReLU(),
+            nn.Linear(width, num_classes)
+        )
+        for dep in range(2):
+            self.head[dep * 2].weight.data.normal_(0, 0.01)
+            self.head[dep * 2].bias.data.fill_(0.0)
+        self.grl = WarmStartGradientReverseLayer(alpha=1.0, lo=0.0, hi=0.1, max_iters=1000,
+                                                       auto_step=False)
+
+    def forward(self, x):
+        features = self.grl(x)
+        features = self.bottleneck(features)
+        outputs_adv = self.head(features)
+        return outputs_adv
+
+    def step(self):
+        self.grl.step()
 
 
 def ResNet18(num_classes):

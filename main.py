@@ -12,13 +12,17 @@ from torch.optim.lr_scheduler import MultiStepLR
 from tllib.utils.data import ForeverDataIterator
 from tllib.modules.domain_discriminator import DomainDiscriminator
 from tllib.alignment.dann import DomainAdversarialLoss
+from tllib.alignment.mdd import ClassificationMarginDisparityDiscrepancy \
+    as MarginDisparityDiscrepancy
+import itertools
 
 args = parse_args()
 
 if args.seed is not None:
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
-    cudnn.benchmark = True
+    cudnn.benchmark = False
+    cudnn.deterministic = True
 
 if torch.cuda.is_available():
     args.device = 'cuda'
@@ -70,10 +74,11 @@ if args.mode == 'distill_only' or args.mode == 'all':
 
 # set up model
 model = models.ResNet18(args.num_classes)
+# domain_discri = models.adversarial(512, 1024, 1024, args.num_classes).to(args.device)
 model = model.to(args.device)
 if args.mode == 'all':
     domain_discri = DomainDiscriminator(in_feature=args.features_dim, hidden_size=1024).to(args.device)
-    optimizer = optim.SGD(list(model.parameters()) + list(domain_discri.parameters()), lr=args.lr,
+    optimizer = optim.SGD(itertools.chain(model.parameters(), domain_discri.parameters()), lr=args.lr,
                           weight_decay=args.weight_decay, momentum=0.9)
 else:
     optimizer = optim.SGD(model.parameters(), lr=args.lr, weight_decay=args.weight_decay, momentum=0.9)
@@ -84,6 +89,7 @@ loss_func = nn.CrossEntropyLoss()
 loss_func = loss_func.to(args.device)
 if args.mode == 'all':
     domain_adv = DomainAdversarialLoss(domain_discri).to(args.device)
+    # mdd = MarginDisparityDiscrepancy(4.).to(args.device)
 
 # model saving directory
 model_save_dir = args.model_dir + '/' + args.dataset + '/' + 'noise_rate_%s' % (args.noise_rate)
@@ -179,6 +185,7 @@ def mian():
         if args.mode == 'all':
             train_loss, train_acc, domain_acc = train_with_dann(model, source_loader, target_iter, optimizer, loss_func,
                                                                 domain_adv, args, scheduler)
+            # train_loss, train_acc = train_with_mdd(model, domain_discri, source_loader, target_iter, optimizer, loss_func, mdd, args, scheduler)
         else:
             train_loss, train_acc = train(model, train_loader, optimizer, loss_func, args, scheduler)
 
