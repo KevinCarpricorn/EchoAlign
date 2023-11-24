@@ -1,20 +1,21 @@
-from args_parser import parse_args
+import itertools
+
+import torch.backends.cudnn as cudnn
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
-import dataset
 import torchvision.transforms as transforms
-import models
-from tqdm import tqdm
-import torch.backends.cudnn as cudnn
-from utils import *
 from torch.optim.lr_scheduler import MultiStepLR
-from tllib.utils.data import ForeverDataIterator
-from tllib.modules.domain_discriminator import DomainDiscriminator
+from torch.utils.data import DataLoader
+from tqdm import tqdm
+
+import dataset
+import models
+from args_parser import parse_args
 from tllib.alignment.dann import DomainAdversarialLoss
+from tllib.modules.domain_discriminator import DomainDiscriminator
+from utils import *
 from tllib.alignment.mdd import ClassificationMarginDisparityDiscrepancy \
     as MarginDisparityDiscrepancy
-import itertools
 
 args = parse_args()
 
@@ -54,9 +55,9 @@ if args.mode == 'processed_only':
     val_data = dataset_function(train=False, transform=transform, target_transform=transform_target)
 else:
     train_data = dataset_function(train=True, transform=transform, target_transform=transform_target,
-                                  noise_rate=args.noise_rate, random_seed=args.seed)
+                                  noise_rate=args.noise_rate, random_seed=args.seed, noise_type=args.noise_type)
     val_data = dataset_function(train=False, transform=transform, target_transform=transform_target,
-                                noise_rate=args.noise_rate, random_seed=args.seed)
+                                noise_rate=args.noise_rate, random_seed=args.seed, noise_type=args.noise_type)
 
 test_data = dataset.CIFAR10_test(transform=transform, target_transform=transform_target)
 
@@ -152,10 +153,10 @@ elif args.mode == 'all':
     tf_dataset_dir = os.path.join('./data', args.dataset, 'source_target_dataset')
     os.makedirs(tf_dataset_dir, exist_ok=True)
 
-    source_target_dataset(model, distill_train_loader, train_data, processed_train_data, threshold, args,
-                          tf_dataset_dir)
-    distill_dataset(model, val_loader, val_data, processed_val_data, threshold, args, tf_dataset_dir,
-                    "validation")
+    # source_target_dataset(model, distill_train_loader, train_data, processed_train_data, threshold, args,
+    #                       tf_dataset_dir)
+    # distill_dataset(model, val_loader, val_data, processed_val_data, threshold, args, tf_dataset_dir,
+    #                 "validation")
 
     print('==> Source and target dataset building..')
     source_data = dataset.source_CIFAR10(transform=transform, target_transform=transform_target)
