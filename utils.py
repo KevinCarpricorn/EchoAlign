@@ -106,7 +106,7 @@ def noisify_multiclass_symmetric(train_labels, noise_rate, random_state=None, nb
     P = np.ones((nb_classes, nb_classes))
     P = (noise_rate / (nb_classes - 1)) * P
 
-    if noise_rate >0.0:
+    if noise_rate > 0.0:
         for i in range(nb_classes):
             P[i, i] = 1. - noise_rate
 
@@ -116,19 +116,20 @@ def noisify_multiclass_symmetric(train_labels, noise_rate, random_state=None, nb
         assert actual_noise > 0.0
         train_labels = y_train_noisy
 
-    return  train_labels
+    return train_labels
 
 
 def symmetric_dataset_split(train_images, train_labels, noise_rate=0.5, split_per=0.9, random_seed=1, num_classes=10):
     train_labels = train_labels[:, np.newaxis]
 
-    noisy_label = noisify_multiclass_symmetric(train_labels, noise_rate, random_state=random_seed, nb_classes=num_classes)
+    noisy_label = noisify_multiclass_symmetric(train_labels, noise_rate, random_state=random_seed,
+                                               nb_classes=num_classes)
 
     noisy_label = noisy_label.squeeze()
     clean_labels = train_labels.squeeze()
     num_samples = int(noisy_label.shape[0])
     np.random.seed(random_seed)
-    train_set_index = np.random.choice(num_samples, int(num_samples*split_per), replace=False)
+    train_set_index = np.random.choice(num_samples, int(num_samples * split_per), replace=False)
     index = np.arange(train_images.shape[0])
     val_set_index = np.delete(index, train_set_index)
 
@@ -145,7 +146,7 @@ def instance_dataset_split(train_data, train_labels, noise_rate=0.5, split_per=0
     clean_labels = np.array(train_labels)
     num_samples = int(noise_labels.shape[0])
     np.random.seed(random_seed)
-    train_set_index = np.random.choice(num_samples, int(num_samples*split_per), replace=False)
+    train_set_index = np.random.choice(num_samples, int(num_samples * split_per), replace=False)
     index = np.arange(train_images.shape[0])
     val_set_index = np.delete(index, train_set_index)
 
@@ -200,7 +201,8 @@ def distill_dataset(model, data_loader, data, processed_data, threshold, args, d
     distilled_labels = np.concatenate((distilled_examples_labels, distilled_processed_examples_labels), axis=0)
 
     print(f'Number of distilled {dataset_type} examples: {len(distilled_examples_index)}')
-    print(f'Accuracy of distilled {dataset_type} examples collection: {(np.array(distilled_examples_labels) == np.array(distilled_clean_labels)).sum() * 100 / len(distilled_examples_labels)}%')
+    print(
+        f'Accuracy of distilled {dataset_type} examples collection: {(np.array(distilled_examples_labels) == np.array(distilled_clean_labels)).sum() * 100 / len(distilled_examples_labels)}%')
 
     if dataset_type == 'training':
         np.save(os.path.join(dataset_dir, f'distilled_train_images.npy'), distilled_imgs)
@@ -208,6 +210,70 @@ def distill_dataset(model, data_loader, data, processed_data, threshold, args, d
     else:
         np.save(os.path.join(dataset_dir, f'distilled_val_images.npy'), distilled_imgs)
         np.save(os.path.join(dataset_dir, f'distilled_val_labels.npy'), distilled_labels)
+
+
+def distill_dataset_small_loss(model, train_clean_indices, val_clean_indices, train_data, val_data, train_processed_data,
+                               val_processed_data,
+                               args, dataset_dir):
+    print(f'==> Filtering dataset..')
+
+    train_distilled_examples_index, train_distilled_processed_examples_index = [], []
+    val_distilled_examples_index, val_distilled_processed_examples_index = [], []
+
+    train_distilled_examples_labels, train_distilled_processed_examples_labels = [], []
+    val_distilled_examples_labels, val_distilled_processed_examples_labels = [], []
+
+    for i in range(len(train_data.train_label)):
+        if i not in train_clean_indices:
+            train_distilled_processed_examples_index.append(i)
+            train_distilled_processed_examples_labels.append(train_data.train_label[i])
+        else:
+            train_distilled_examples_index.append(i)
+            train_distilled_examples_labels.append(train_data.train_label[i])
+
+    for i in range(len(val_data.val_label)):
+        if i not in val_clean_indices:
+            val_distilled_processed_examples_index.append(i)
+            val_distilled_processed_examples_labels.append(val_data.val_label[i])
+        else:
+            val_distilled_examples_index.append(i)
+            val_distilled_examples_labels.append(val_data.val_label[i])
+
+    # make them all numpy arrays
+    train_distilled_examples_index = np.array(train_distilled_examples_index)
+    train_distilled_examples_labels = np.array(train_distilled_examples_labels)
+    train_distilled_processed_examples_index = np.array(train_distilled_processed_examples_index)
+    train_distilled_processed_examples_labels = np.array(train_distilled_processed_examples_labels)
+    val_distilled_examples_index = np.array(val_distilled_examples_index)
+    val_distilled_examples_labels = np.array(val_distilled_examples_labels)
+    val_distilled_processed_examples_index = np.array(val_distilled_processed_examples_index)
+    val_distilled_processed_examples_labels = np.array(val_distilled_processed_examples_labels)
+
+    # train
+    distilled_imgs = train_data.train_image[train_distilled_examples_index]
+    distilled_processed_imgs = train_processed_data.train_image[train_distilled_processed_examples_index]
+    distilled_clean_labels = train_data.clean_train_label[train_distilled_examples_index]
+    distilled_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
+    distilled_labels = np.concatenate((train_distilled_examples_labels, train_distilled_processed_examples_labels), axis=0)
+
+    print(f'Number of distilled train examples: {len(train_distilled_examples_index)}')
+    print(
+        f'Accuracy of distilled train examples collection: {(train_distilled_examples_labels == distilled_clean_labels).sum() * 100 / len(train_distilled_examples_labels)}%')
+    np.save(os.path.join(dataset_dir, f'distilled_train_images.npy'), distilled_imgs)
+    np.save(os.path.join(dataset_dir, f'distilled_train_labels.npy'), distilled_labels)
+
+    # val
+    distilled_imgs = val_data.val_image[val_distilled_examples_index]
+    distilled_processed_imgs = val_processed_data.val_image[val_distilled_processed_examples_index]
+    distilled_clean_labels = val_data.clean_val_label[val_distilled_examples_index]
+    distilled_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
+    distilled_labels = np.concatenate((val_distilled_examples_labels, val_distilled_processed_examples_labels), axis=0)
+
+    print(f'Number of distilled validation examples: {len(val_distilled_examples_index)}')
+    print(
+        f'Accuracy of distilled validation examples collection: {(val_distilled_examples_labels == distilled_clean_labels).sum() * 100 / len(val_distilled_examples_labels)}%')
+    np.save(os.path.join(dataset_dir, f'distilled_val_images.npy'), distilled_imgs)
+    np.save(os.path.join(dataset_dir, f'distilled_val_labels.npy'), distilled_labels)
 
 
 def source_target_dataset(model, data_loader, data, processed_data, threshold, args, dataset_dir):
@@ -245,10 +311,12 @@ def source_target_dataset(model, data_loader, data, processed_data, threshold, a
 
     distilled_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
     distilled_labels = np.concatenate((distilled_examples_labels, distilled_processed_examples_labels), axis=0)
-    classes = np.concatenate((np.zeros(len(distilled_examples_index)), np.ones(len(distilled_processed_examples_index))), axis=0)
+    classes = np.concatenate(
+        (np.zeros(len(distilled_examples_index)), np.ones(len(distilled_processed_examples_index))), axis=0)
 
     print(f'Number of distilled training examples: {len(distilled_examples_index)}')
-    print(f'Accuracy of distilled training examples collection: {(np.array(distilled_examples_labels) == np.array(distilled_clean_labels)).sum() * 100 / len(distilled_examples_labels)}%')
+    print(
+        f'Accuracy of distilled training examples collection: {(np.array(distilled_examples_labels) == np.array(distilled_clean_labels)).sum() * 100 / len(distilled_examples_labels)}%')
     print(f'Number of target domain examples: {len(traget_examples_index) + len(distilled_examples_index)}')
 
     np.save(os.path.join(dataset_dir, f'source_images.npy'), distilled_imgs)
@@ -305,8 +373,8 @@ def train_with_dann(model, source_loader, target_iter, optimizer, loss_func, dom
         train_loss += loss.item()
         pred = torch.max(F.softmax(source_output, dim=1), 1)[1]
         train_correct = (pred == labels).sum()
-        train_acc += train_correct.item() # account
-        domain_acc += domain_adv.domain_discriminator_accuracy.item() # %
+        train_acc += train_correct.item()  # account
+        domain_acc += domain_adv.domain_discriminator_accuracy.item()  # %
     scheduler.step()
     return train_loss, train_acc, domain_acc
 
