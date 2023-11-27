@@ -11,6 +11,7 @@ from tqdm import tqdm
 import dataset
 import models
 from args_parser import parse_args
+from small_loss_trick import filter
 from tllib.alignment.dann import DomainAdversarialLoss
 from tllib.modules.domain_discriminator import DomainDiscriminator
 from utils import *
@@ -29,6 +30,8 @@ if torch.cuda.is_available():
     args.device = 'cuda'
     args.num_workers = 8
     torch.cuda.manual_seed_all(args.seed)
+elif torch.backends.mps.is_available():
+    args.device = 'mps'
 
 # dataset(cifar10)
 args.num_classes = 10
@@ -127,8 +130,8 @@ if not os.path.exists(warm_up_model):
                 torch.save(model.state_dict(), warm_up_model)
 
 threshold = (1 + args.rho) / 2
-if args.mode != 'raw_only' and args.mode != 'processed_only':
-    model.load_state_dict(torch.load(warm_up_model))
+# if args.mode != 'raw_only' and args.mode != 'processed_only':
+#     model.load_state_dict(torch.load(warm_up_model))
 
 # distillation
 if args.mode == 'distill_only':
@@ -136,10 +139,15 @@ if args.mode == 'distill_only':
     distilled_dataset_dir = os.path.join('./data', args.dataset, 'distilled_dataset')
     os.makedirs(distilled_dataset_dir, exist_ok=True)
 
-    distill_dataset(model, distill_train_loader, train_data, processed_train_data, threshold, args,
-                    distilled_dataset_dir, "training")
-    distill_dataset(model, val_loader, val_data, processed_val_data, threshold, args, distilled_dataset_dir,
-                    "validation")
+    # distill_dataset(model, distill_train_loader, train_data, processed_train_data, threshold, args,
+    #                 distilled_dataset_dir, "training")
+    # distill_dataset(model, val_loader, val_data, processed_val_data, threshold, args, distilled_dataset_dir,
+    #                 "validation")
+    train_clean_indices, val_clean_indices = filter(model, train_loader, val_loader, train_data, val_data, optimizer,
+                                                    loss_func, args.warmup_epochs, args)
+    distill_dataset_small_loss(model, train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
+                               processed_val_data,
+                               args, distilled_dataset_dir)
 
     print('==> Distilled dataset building..')
     train_data = dataset.distilled_CIFAR10(train=True, transform=transform, target_transform=transform_target)
