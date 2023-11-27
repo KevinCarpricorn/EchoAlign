@@ -241,13 +241,16 @@ class CIFAR10(Data.Dataset):
 
 
 class processed_CIFAR10(Data.Dataset):
-    def __init__(self, train=True, transform=None, target_transform=None):
+    def __init__(self, train=True, transform=None, target_transform=None, noise_type='symmetric'):
         self.train = train
         self.transform = transform
         self.target_transform = target_transform
 
         processed_dir = './data/cifar10/processed'
-        label_dir = './data/cifar10'
+        if noise_type == 'symmetric':
+            label_dir = './data/cifar10/symmetric_noise_0.5'
+        elif noise_type == 'instance':
+            label_dir = './data/cifar10/instance_noise_0.5'
 
         # check existance of train dataset
         self.train_image = np.load(os.path.join(processed_dir, 'processed_train_images.npy'))
