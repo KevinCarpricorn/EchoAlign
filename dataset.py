@@ -249,8 +249,10 @@ class processed_CIFAR10(Data.Dataset):
         processed_dir = './data/cifar10/processed'
         if noise_type == 'symmetric':
             label_dir = './data/cifar10/symmetric_noise_0.5'
+            processed_dir = os.path.join(processed_dir, 'symmetric_noise_0.5')
         elif noise_type == 'instance':
             label_dir = './data/cifar10/instance_noise_0.5'
+            processed_dir = os.path.join(processed_dir, 'instance_noise_0.5')
 
         # check existance of train dataset
         self.train_image = np.load(os.path.join(processed_dir, 'processed_train_images.npy'))

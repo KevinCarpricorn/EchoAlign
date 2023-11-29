@@ -77,9 +77,8 @@ if args.mode == 'distill_only' or args.mode == 'all':
                                       num_workers=args.num_workers, drop_last=False)
 
 # set up model
-model = models.ResNet18(args.num_classes)
+model = models.ResNet18(args.num_classes).to(args.device)
 # domain_discri = models.adversarial(512, 1024, 1024, args.num_classes).to(args.device)
-model = model.to(args.device)
 if args.mode == 'all':
     domain_discri = DomainDiscriminator(in_feature=args.features_dim, hidden_size=1024).to(args.device)
     optimizer = optim.SGD(itertools.chain(model.parameters(), domain_discri.parameters()), lr=args.lr,
@@ -145,9 +144,8 @@ if args.mode == 'distill_only':
     #                 "validation")
     train_clean_indices, val_clean_indices = filter(model, train_loader, val_loader, train_data, val_data, optimizer,
                                                     loss_func, args.warmup_epochs, args)
-    distill_dataset_small_loss(model, train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
-                               processed_val_data,
-                               args, distilled_dataset_dir)
+    distill_dataset_small_loss(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
+                               processed_val_data, distilled_dataset_dir)
 
     print('==> Distilled dataset building..')
     train_data = dataset.distilled_CIFAR10(train=True, transform=transform, target_transform=transform_target)
@@ -165,11 +163,16 @@ elif args.mode == 'all':
     #                       tf_dataset_dir)
     # distill_dataset(model, val_loader, val_data, processed_val_data, threshold, args, tf_dataset_dir,
     #                 "validation")
+    train_clean_indices, val_clean_indices = filter(model, train_loader, val_loader, train_data, val_data, optimizer,
+                                                    loss_func, args.warmup_epochs, args)
+    source_target_dataset_sl(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
+                               processed_val_data, tf_dataset_dir)
 
     print('==> Source and target dataset building..')
     source_data = dataset.source_CIFAR10(transform=transform, target_transform=transform_target)
     target_data = dataset.target_CIFAR10(transform=transform)
-    val_data = dataset.distilled_CIFAR10(train=False, transform=transform, target_transform=transform_target, dir=tf_dataset_dir)
+    val_data = dataset.distilled_CIFAR10(train=False, transform=transform, target_transform=transform_target,
+                                         dir=tf_dataset_dir)
     source_loader = DataLoader(source_data, batch_size=int(args.batch_size / 2), shuffle=True,
                                num_workers=args.num_workers,
                                drop_last=False)
