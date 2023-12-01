@@ -197,7 +197,7 @@ class CIFAR10(Data.Dataset):
                                              transform=transforms.ToTensor())
                 train_image = train_set.data
                 train_label = np.array(train_set.targets)
-                self.train_image, self.train_label, self.val_image, self.val_label, self.clean_train_label, self.clean_val_label = utils.dataset_split(
+                self.train_image, self.train_label, self.val_image, self.val_label, self.clean_train_label, self.clean_val_label = utils.symmetric_dataset_split(
                     train_image,
                     train_label,
                     noise_rate,
