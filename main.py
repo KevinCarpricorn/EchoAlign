@@ -227,8 +227,8 @@ def mian():
 
         if args.mode == 'all':
             print('Train Loss: {:.6f}, Acc: {:.6f}%, Domain Acc: {:.6f}%'.format(
-                train_loss / (len(train_data)) * args.batch_size,
-                train_acc * 100 / (len(train_data)),
+                train_loss / (len(source_data)) * args.batch_size,
+                train_acc * 100 / (len(source_data)),
                 domain_acc / (len(source_loader))))
         else:
             print('Train Loss: {:.6f}, Acc: {:.6f}%'.format(train_loss / (len(train_data)) * args.batch_size,
