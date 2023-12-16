@@ -302,6 +302,7 @@ class distilled_CIFAR10(Data.Dataset):
             self.train_label = np.load(os.path.join(distilled_dataset_dir, 'distilled_train_labels.npy'))
             self.val_image = np.load(os.path.join(distilled_dataset_dir, 'distilled_val_images.npy'))
             self.val_label = np.load(os.path.join(distilled_dataset_dir, 'distilled_val_labels.npy'))
+            self.classes = np.load(os.path.join(distilled_dataset_dir, 'classes.npy'))
         else:
             distilled_dataset_dir = dir
             self.val_image = np.load(os.path.join(distilled_dataset_dir, 'distilled_val_images.npy'))
@@ -309,9 +310,10 @@ class distilled_CIFAR10(Data.Dataset):
 
     def __getitem__(self, index):
         if self.train:
-            img, label = self.train_image[index], self.train_label[index]
+            img, label, cls = self.train_image[index], self.train_label[index], self.classes[index]
         else:
             img, label = self.val_image[index], self.val_label[index]
+            cls = 0
 
         img = Image.fromarray(img.astype('uint8'))
 
@@ -321,7 +323,7 @@ class distilled_CIFAR10(Data.Dataset):
         if self.target_transform is not None:
             label = self.target_transform(label)
 
-        return img, label, index
+        return img, label, cls, index
 
     def __len__(self):
         return len(self.train_image) if self.train else len(self.val_image)
@@ -415,3 +417,30 @@ class CustomDataIterator:
                 data.append(next(self.iterator))
         data = torch.cat(data, dim=0)
         return data
+
+
+class fine_tune_CIFAR10(Data.Dataset):
+    def __init__(self, transform=None, target_transform=None):
+        self.transform = transform
+        self.target_transform = target_transform
+
+        dataset_dir = './data/cifar10/distilled_dataset'
+        self.fine_tune_image = np.load(os.path.join(dataset_dir, 'distilled_clean_images.npy'))
+        self.fine_tune_label = np.load(os.path.join(dataset_dir, 'distilled_clean_labels.npy'))
+
+
+    def __getitem__(self, index):
+        img, label = self.fine_tune_image[index], self.fine_tune_label[index]
+
+        img = Image.fromarray(img.astype('uint8'))
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        if self.target_transform is not None:
+            label = self.target_transform(label)
+
+        return img, label, index
+
+    def __len__(self):
+        return len(self.fine_tune_image)
