@@ -14,6 +14,7 @@ def train(model, train_loader, val_loader, optimizer, loss_fn, epochs, args):
             imgs, labels = imgs.to(args.device), labels.to(args.device)
             outputs, _ = model(imgs)
             loss = loss_fn(outputs, labels)
+            loss = loss.mean()
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
