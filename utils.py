@@ -224,19 +224,21 @@ def distill_dataset_small_loss(train_clean_indices, val_clean_indices, train_dat
 
     for i in range(len(train_data.train_label)):
         if i not in train_clean_indices:
-            train_distilled_processed_examples_index.append(i)
-            train_distilled_processed_examples_labels.append(train_data.train_label[i])
+            pass
         else:
             train_distilled_examples_index.append(i)
             train_distilled_examples_labels.append(train_data.train_label[i])
+        train_distilled_processed_examples_index.append(i)
+        train_distilled_processed_examples_labels.append(train_data.train_label[i])
 
     for i in range(len(val_data.val_label)):
         if i not in val_clean_indices:
-            val_distilled_processed_examples_index.append(i)
-            val_distilled_processed_examples_labels.append(val_data.val_label[i])
+            pass
         else:
             val_distilled_examples_index.append(i)
             val_distilled_examples_labels.append(val_data.val_label[i])
+        val_distilled_processed_examples_index.append(i)
+        val_distilled_processed_examples_labels.append(val_data.val_label[i])
 
     # make them all numpy arrays
     train_distilled_examples_index = np.array(train_distilled_examples_index)
@@ -251,8 +253,13 @@ def distill_dataset_small_loss(train_clean_indices, val_clean_indices, train_dat
     # train
     distilled_imgs = train_data.train_image[train_distilled_examples_index]
     distilled_processed_imgs = train_processed_data.train_image[train_distilled_processed_examples_index]
+    np.save(os.path.join(dataset_dir, f'distilled_clean_images.npy'), distilled_imgs)
+    np.save(os.path.join(dataset_dir, f'distilled_clean_labels.npy'), train_distilled_examples_labels)
     distilled_clean_labels = train_data.clean_train_label[train_distilled_examples_index]
     distilled_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
+    # create a classes array which is 0 for distilled examples and 1 for processed distilled examples
+    classes = np.concatenate(
+        (np.zeros(len(train_distilled_examples_index)), np.ones(len(train_distilled_processed_examples_index))), axis=0)
     distilled_labels = np.concatenate((train_distilled_examples_labels, train_distilled_processed_examples_labels),
                                       axis=0)
 
@@ -261,6 +268,7 @@ def distill_dataset_small_loss(train_clean_indices, val_clean_indices, train_dat
         f'Accuracy of distilled train examples collection: {(train_distilled_examples_labels == distilled_clean_labels).sum() * 100 / len(train_distilled_examples_labels)}%')
     np.save(os.path.join(dataset_dir, f'distilled_train_images.npy'), distilled_imgs)
     np.save(os.path.join(dataset_dir, f'distilled_train_labels.npy'), distilled_labels)
+    np.save(os.path.join(dataset_dir, f'classes.npy'), classes)
 
     # val
     distilled_imgs = val_data.val_image[val_distilled_examples_index]
@@ -398,14 +406,19 @@ def source_target_dataset_sl(train_clean_indices, val_clean_indices, train_data,
     np.save(os.path.join(dataset_dir, f'classes.npy'), classes)
 
 
-def train(model, train_loader, optimizer, loss_func, args, scheduler):
+def train(model, train_loader, optimizer, loss_func, args, scheduler, source_weight, target_weight):
     model.train()
     train_loss = 0.
     train_acc = 0.
-    for imgs, labels, _ in train_loader:
+    for imgs, labels, cls, _ in train_loader:
+        sorted_indices = torch.argsort(cls, descending=True)
+        imgs, labels = imgs[sorted_indices], labels[sorted_indices]
         imgs, labels = imgs.to(args.device), labels.to(args.device)
+        weights = torch.tensor([source_weight] * int(cls.sum()) + [target_weight] * (len(cls) - int(cls.sum())))
+        weights = weights.to(args.device)
         output, _ = model(imgs)
         loss = loss_func(output, labels)
+        loss = torch.mean(loss * weights)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -487,4 +500,23 @@ def train_with_mdd(model, adv, source_loader, target_iter, optimizer, loss_func,
         train_correct = (pred == labels).sum()
         train_acc += train_correct.item()
     scheduler.step()
+    return train_loss, train_acc
+
+
+def fine_tune(model, train_loader, optimizer, loss_func, args):
+    model.train()
+    train_loss = 0.
+    train_acc = 0.
+    for imgs, labels, _ in train_loader:
+        imgs, labels = imgs.to(args.device), labels.to(args.device)
+        output, _ = model(imgs)
+        loss = loss_func(output, labels)
+        loss = torch.mean(loss)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        train_loss += loss.item()
+        pred = torch.max(F.softmax(output, dim=1), 1)[1]
+        train_correct = (pred == labels).sum()
+        train_acc += train_correct.item()
     return train_loss, train_acc
