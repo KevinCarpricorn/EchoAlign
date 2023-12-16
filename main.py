@@ -88,7 +88,7 @@ else:
 scheduler = MultiStepLR(optimizer, milestones=[100, 150], gamma=0.1)
 
 # loss
-loss_func = nn.CrossEntropyLoss()
+loss_func = nn.CrossEntropyLoss(reduction='none')
 loss_func = loss_func.to(args.device)
 if args.mode == 'all':
     domain_adv = DomainAdversarialLoss(domain_discri).to(args.device)
@@ -154,6 +154,14 @@ if args.mode == 'distill_only':
                               drop_last=False)
     val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
                             drop_last=False)
+    # renew model
+    model = models.ResNet18(args.num_classes).to(args.device)
+    optimizer = optim.SGD(model.parameters(), lr=args.lr, weight_decay=args.weight_decay, momentum=0.9)
+    scheduler = MultiStepLR(optimizer, milestones=[100, 150], gamma=0.1)
+    fine_tune_data = dataset.fine_tune_CIFAR10(transform=transform, target_transform=transform_target)
+    fine_tune_loader = DataLoader(fine_tune_data, batch_size=args.batch_size, shuffle=True,
+                                   num_workers=args.num_workers,
+                                   drop_last=False)
     print('==> Distilled dataset building done..')
 elif args.mode == 'all':
     tf_dataset_dir = os.path.join('./data', args.dataset, 'source_target_dataset')
@@ -189,6 +197,10 @@ print('==> Start training..')
 
 def mian():
     best_val_acc = 0.
+    source_weight = len(train_clean_indices) / len(train_data)
+    target_weight = (len(train_data) - len(train_clean_indices)) / len(train_data)
+    print('source_weight: {:.6f}, target_weight: {:.6f}'.format(source_weight, target_weight))
+    best_acc = 0.
     for epoch in tqdm(range(args.n_epoch)):
         print('epoch {}'.format(epoch + 1))
         # train
@@ -199,14 +211,15 @@ def mian():
                                                                 domain_adv, args, scheduler)
             # train_loss, train_acc = train_with_mdd(model, domain_discri, source_loader, target_iter, optimizer, loss_func, mdd, args, scheduler)
         else:
-            train_loss, train_acc = train(model, train_loader, optimizer, loss_func, args, scheduler)
+            train_loss, train_acc = train(model, train_loader, optimizer, loss_func, args, scheduler, source_weight, target_weight)
 
         with torch.no_grad():
             model.eval()
-            for imgs, labels, _ in val_loader:
+            for imgs, labels, _, _ in val_loader:
                 imgs, labels = imgs.to(args.device), labels.to(args.device)
                 output, _ = model(imgs)
                 loss = loss_func(output, labels)
+                loss = loss.mean()
                 val_loss += loss.item()
                 pred = torch.max(F.softmax(output, dim=1), 1)[1]
                 val_correct = (pred == labels).sum()
@@ -236,21 +249,50 @@ def mian():
         print('Val Loss: {:.6f}, Acc: {:.6f}%'.format(val_loss / (len(val_data)) * args.batch_size,
                                                       val_acc * 100 / (len(val_data))))
 
-    test_loss = 0.
-    test_acc = 0.
-    model.load_state_dict(torch.load(model_save_dir + '/' + model_file))
-    with torch.no_grad():
-        model.eval()
-        for imgs, labels in test_loader:
-            imgs, labels = imgs.to(args.device), labels.to(args.device)
-            output, _ = model(imgs)
-            loss = loss_func(output, labels)
-            test_loss += loss.item()
-            pred = torch.max(F.softmax(output, dim=1), 1)[1]
-            test_correct = (pred == labels).sum()
-            test_acc += test_correct.item()
-    print('Test Loss: {:.6f}, Acc: {:.6f}%'.format(test_loss / (len(test_data)) * args.batch_size,
-                                                   test_acc * 100 / (len(test_data))))
+        test_loss = 0.
+        test_acc = 0.
+        # model.load_state_dict(torch.load(model_save_dir + '/' + model_file))
+        with torch.no_grad():
+            model.eval()
+            for imgs, labels in test_loader:
+                imgs, labels = imgs.to(args.device), labels.to(args.device)
+                output, _ = model(imgs)
+                loss = loss_func(output, labels)
+                loss = loss.mean()
+                test_loss += loss.item()
+                pred = torch.max(F.softmax(output, dim=1), 1)[1]
+                test_correct = (pred == labels).sum()
+                test_acc += test_correct.item()
+        if test_acc > best_acc:
+            best_acc = test_acc
+        print('Test Loss: {:.6f}, Acc: {:.6f}%'.format(test_loss / (len(test_data)) * args.batch_size,
+                                                       test_acc * 100 / (len(test_data))))
+    print('Best Test Acc: {:.6f}%'.format(best_acc * 100 / (len(test_data))))
+
+
+    # fine tune
+    for epoch in tqdm(range(40)):
+        fine_tune_loss, fine_tune_acc = fine_tune(model, fine_tune_loader, optimizer, loss_func, args)
+        print('Fine Tune Loss: {:.6f}, Acc: {:.6f}%'.format(fine_tune_loss / (len(fine_tune_data)) * args.batch_size,
+                                                            fine_tune_acc * 100 / (len(fine_tune_data))))
+        test_loss = 0.
+        test_acc = 0.
+        with torch.no_grad():
+            model.eval()
+            for imgs, labels in test_loader:
+                imgs, labels = imgs.to(args.device), labels.to(args.device)
+                output, _ = model(imgs)
+                loss = loss_func(output, labels)
+                loss = loss.mean()
+                test_loss += loss.item()
+                pred = torch.max(F.softmax(output, dim=1), 1)[1]
+                test_correct = (pred == labels).sum()
+                test_acc += test_correct.item()
+        if test_acc > best_acc:
+            best_acc = test_acc
+        print('Test Loss: {:.6f}, Acc: {:.6f}%'.format(test_loss / (len(test_data)) * args.batch_size,
+                                                       test_acc * 100 / (len(test_data))))
+    print('Best Test Acc: {:.6f}%'.format(best_acc * 100 / (len(test_data))))
 
 
 if __name__ == '__main__':

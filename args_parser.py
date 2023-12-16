@@ -14,10 +14,10 @@ def parse_args():
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--device', type=str, default='cpu')
-    parser.add_argument('--mode', type=str, default='all',
+    parser.add_argument('--mode', type=str, default='distill_only',
                         choices=['distill_only', 'processed_only', 'raw_only', 'all'])
     parser.add_argument('--rho', type=float, default=0.1)
-    parser.add_argument('--warmup_epochs', type=int, default=40)
+    parser.add_argument('--warmup_epochs', type=int, default=70)
     parser.add_argument('--features_dim', type=int, default=512)
     parser.add_argument('--trade_off', type=float, default=1.0)
     parser.add_argument('--noise_type', type=str, default='symmetric', choices=['symmetric', 'pairflip', 'instance'])
