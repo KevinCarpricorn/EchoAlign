@@ -405,8 +405,6 @@ def source_target_dataset_sl(train_clean_indices, val_clean_indices, train_data,
     np.save(os.path.join(dataset_dir, f'classes.npy'), classes)
 
 
-
-
 def train_with_dann(model, source_loader, target_iter, optimizer, loss_func, domain_adv, args, scheduler):
     model.train()
     domain_adv.train()
