@@ -1,11 +1,13 @@
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision
 
 from tllib.modules.grl import WarmStartGradientReverseLayer
 
 
 class BasicBlock(nn.Module):
     expansion = 1
+
     def __init__(self, in_planes, planes, stride=1):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
@@ -81,7 +83,7 @@ class adversarial(nn.Module):
             self.head[dep * 2].weight.data.normal_(0, 0.01)
             self.head[dep * 2].bias.data.fill_(0.0)
         self.grl = WarmStartGradientReverseLayer(alpha=1.0, lo=0.0, hi=0.1, max_iters=1000,
-                                                       auto_step=False)
+                                                 auto_step=False)
 
     def forward(self, x):
         features = self.grl(x)
@@ -94,7 +96,20 @@ class adversarial(nn.Module):
 
 
 def ResNet18(num_classes):
-    return ResNet(BasicBlock, [2,2,2,2], num_classes)
+    return ResNet(BasicBlock, [2, 2, 2, 2], num_classes)
+
 
 def ResNet34(num_classes):
-    return ResNet(BasicBlock, [3,4,6,3], num_classes)
+    return ResNet(BasicBlock, [3, 4, 6, 3], num_classes)
+
+
+def get_model(args):
+    if args.model == 'resnet18':
+        model = ResNet18(args.num_classes)
+    elif args.model == 'resnet34':
+        model = ResNet34(args.num_classes)
+    elif args.model == 'resnet50':
+        model = torchvision.models.resnet50(pretrained=True)
+        model.fc = nn.Linear(2048, args.num_classes)
+
+    return model

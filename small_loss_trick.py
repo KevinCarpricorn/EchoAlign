@@ -1,13 +1,13 @@
 import numpy as np
-from tqdm import tqdm
 import torch
+from tqdm import tqdm
 
 
-def train(model, train_loader, val_loader, optimizer, loss_fn, epochs, args):
+def train(model, train_loader, val_loader, optimizer, loss_fn, args):
     print("==> Warmming up the model...")
-    train_loss_matrix = np.zeros((len(train_loader.dataset), epochs))
-    val_loss_matrix = np.zeros((len(val_loader.dataset), epochs))
-    for epoch in tqdm(range(epochs)):
+    train_loss_matrix = np.zeros((len(train_loader.dataset), args.distill_epochs))
+    val_loss_matrix = np.zeros((len(val_loader.dataset), args.distill_epochs))
+    for epoch in tqdm(range(args.distill_epochs)):
         model.train()
         print("==> Epoch: {}".format(epoch + 1))
         for imgs, labels, indices in train_loader:
@@ -19,9 +19,10 @@ def train(model, train_loader, val_loader, optimizer, loss_fn, epochs, args):
             loss.backward()
             optimizer.step()
 
-        if epoch != epochs:
+        if epoch != args.distill_epochs:
             train_loss_matrix, val_loss_matrix = eval(model, train_loader, val_loader,
-                                                      torch.nn.CrossEntropyLoss(reduction='none'), train_loss_matrix, val_loss_matrix,
+                                                      torch.nn.CrossEntropyLoss(reduction='none'), train_loss_matrix,
+                                                      val_loss_matrix,
                                                       epoch, args)
     return train_loss_matrix, val_loss_matrix
 
@@ -42,8 +43,8 @@ def eval(model, train_loader, val_loader, loss_fn, train_loss_matrix, val_loss_m
     return train_loss_matrix, val_loss_matrix
 
 
-def filter(model, train_loader, val_loader, train_data, val_data, optimizer, loss_fn, epochs, args):
-    train_loss_matrix, val_loss_matrix = train(model, train_loader, val_loader, optimizer, loss_fn, epochs, args)
+def filter(model, train_loader, val_loader, train_data, val_data, optimizer, loss_fn, args):
+    train_loss_matrix, val_loss_matrix = train(model, train_loader, val_loader, optimizer, loss_fn, args)
     train_loss_matrix = train_loss_matrix.mean(axis=1)
     val_loss_matrix = val_loss_matrix.mean(axis=1)
 
@@ -63,7 +64,7 @@ def filter(model, train_loader, val_loader, train_data, val_data, optimizer, los
 
         c = []
         for i in val_sorted_indices:
-            if val_data.train_label[i] == cls:
+            if val_data.val_label[i] == cls:
                 c.append(i)
         clean_num = int(cr * len(c))
         val_clean_indices.extend(c[:clean_num])
