@@ -94,4 +94,6 @@ def main():
 
 
 if __name__ == '__main__':
-    logger.log(main, f'./logs/{args.dataset}/{args.noise_type}_{args.noise_rate}_ce.log')
+    log_dir = f'./logs/{args.dataset}'
+    os.makedirs(log_dir, exist_ok=True)
+    logger.log(main, os.path.join(log_dir, f'{args.noise_type}_{args.noise_rate}.log'))
