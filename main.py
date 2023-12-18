@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 import dataloader
 import dataset
+import logs.logger as logger
 import models
 import transforms
 from args_parser import parse_args
@@ -125,4 +126,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    logger.log(main, f'./logs/{args.dataset}_{args.noise_type}_{args.noise_rate}.log')
