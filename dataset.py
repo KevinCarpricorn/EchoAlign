@@ -427,8 +427,7 @@ class CustomDataIterator:
             except StopIteration:
                 self.iterator = iter(self.data_loader)
                 data.append(next(self.iterator))
-        data = torch.cat(data, dim=0)
-        return data
+        return data[0] if len(data) == 1 else torch.cat(data, dim=0)
 
 
 class filtered_dataset(Data.Dataset):
