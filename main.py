@@ -126,4 +126,4 @@ def main():
 
 
 if __name__ == '__main__':
-    logger.log(main, f'./logs/{args.dataset}_{args.noise_type}_{args.noise_rate}.log')
+    logger.log(main, f'./logs/{args.dataset}/{args.noise_type}_{args.noise_rate}.log')
