@@ -11,7 +11,7 @@ def parse_args():
     parser.add_argument('--n_epoch', type=int, default=200)
     parser.add_argument('--num_classes', type=int, default=10)
     parser.add_argument('--noise_rate', type=float, help='corruption rate, should be less than 1', default=0.5)
-    parser.add_argument('--seed', type=int, default=1)
+    parser.add_argument('--seed', type=int, default=114514)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--device', type=str, default='cpu')
     parser.add_argument('--mode', type=str, default='distill_only',
