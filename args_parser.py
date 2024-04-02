@@ -13,14 +13,11 @@ def parse_args():
     parser.add_argument('--noise_rate', type=float, help='corruption rate, should be less than 1', default=0.5)
     parser.add_argument('--seed', type=int, default=114514)
     parser.add_argument('--batch_size', type=int, default=128)
-    parser.add_argument('--device', type=str, default='cpu')
-    parser.add_argument('--mode', type=str, default='distill_only',
-                        choices=['distill_only', 'processed_only', 'raw_only', 'all'])
-    parser.add_argument('--rho', type=float, default=0.1)
+    parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--distill_epochs', type=int, default=70)
     parser.add_argument('--features_dim', type=int, default=512)
     parser.add_argument('--trade_off', type=float, default=1.0)
-    parser.add_argument('--noise_type', type=str, default='symmetric', choices=['symmetric', 'pairflip', 'instance'])
+    parser.add_argument('--noise_type', type=str, default='instance', choices=['symmetric', 'pairflip', 'instance'])
     # set to 0 if using cpu
     parser.add_argument('--num_workers', type=int, default=0)
 

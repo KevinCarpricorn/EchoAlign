@@ -12,12 +12,15 @@ import transforms
 from args_parser import parse_args
 from evaluator import evaluate, test
 from small_loss_trick import filter
+from clip_filter import filtering
 from trainer import train, fine_tune
 from utils import *
 
 args = parse_args()
 # set up environment
 set_up(args)
+
+print(f'==> Dataset: {args.dataset}, Noise Type: {args.noise_type}, Noise Rate: {args.noise_rate}, Batch Size: {args.batch_size}, Seed: {args.seed}')
 
 # preparing dataset
 transform = transforms.transform(args)
@@ -57,10 +60,17 @@ os.makedirs(model_save_dir, exist_ok=True)
 print('==> Distilled dataset building..')
 distilled_dataset_dir = os.path.join('./data', args.dataset, f'{args.noise_type}_{args.noise_rate}')
 
-train_clean_indices, val_clean_indices = filter(model, train_loader, val_loader, train_data, val_data, optimizer,
-                                                loss_func, args)
-distill_dataset_small_loss(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
-                           processed_val_data, distilled_dataset_dir)
+if args.noise_type == 'symmetric':
+    train_clean_indices, val_clean_indices = filter(model, train_loader, val_loader, train_data, val_data, optimizer,
+                                                    loss_func, args)
+    distill_dataset_small_loss(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
+                               processed_val_data, distilled_dataset_dir)
+elif args.noise_type == 'instance':
+    train_clean_indices, val_clean_indices = filtering(args)
+    distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
+                            processed_val_data, distilled_dataset_dir)
+elif args.noise_type == 'pairflip':
+    pass
 
 train_data = dataloader.get_distilled_dataset(train=True, transform=transform, target_transform=target_transform,
                                               dir=distilled_dataset_dir, args=args)

@@ -1,0 +1,883 @@
+source_weight: 0.103246, target_weight: 0.896754
+epoch 1
+Train Loss: 0.268492, Acc: 59.508579%
+Val Loss: 2.034001, Acc: 44.308578%
+Test Loss: 2.920479, Acc: 24.140000%
+epoch 2
+Train Loss: 0.240435, Acc: 64.829318%
+Val Loss: 0.843944, Acc: 71.120302%
+Test Loss: 2.006208, Acc: 33.890000%
+epoch 3
+Train Loss: 0.193850, Acc: 73.639425%
+Val Loss: 0.822879, Acc: 74.123359%
+Test Loss: 1.952002, Acc: 35.750000%
+epoch 4
+Train Loss: 0.180868, Acc: 76.522987%
+Val Loss: 1.070911, Acc: 61.697536%
+Test Loss: 2.259141, Acc: 30.450000%
+epoch 5
+Train Loss: 0.197012, Acc: 72.957892%
+Val Loss: 0.707841, Acc: 75.705808%
+Test Loss: 1.870974, Acc: 38.990000%
+epoch 6
+Train Loss: 0.160759, Acc: 78.760886%
+Val Loss: 0.625771, Acc: 78.816760%
+Test Loss: 1.904831, Acc: 41.090000%
+epoch 7
+Train Loss: 0.145574, Acc: 81.321616%
+Val Loss: 0.531428, Acc: 82.089552%
+Test Loss: 1.618871, Acc: 47.270000%
+epoch 8
+Train Loss: 0.136122, Acc: 83.250633%
+Val Loss: 1.859991, Acc: 59.018162%
+Test Loss: 1.976962, Acc: 42.460000%
+epoch 9
+Train Loss: 0.179394, Acc: 75.002491%
+Val Loss: 0.587962, Acc: 79.733861%
+Test Loss: 1.850297, Acc: 43.840000%
+epoch 10
+Train Loss: 0.145403, Acc: 81.040633%
+Val Loss: 0.513198, Acc: 82.898759%
+Test Loss: 1.547901, Acc: 51.000000%
+epoch 11
+Train Loss: 0.116508, Acc: 85.087982%
+Val Loss: 0.537623, Acc: 82.521129%
+Test Loss: 1.940569, Acc: 44.270000%
+epoch 12
+Train Loss: 0.103786, Acc: 86.552679%
+Val Loss: 0.398917, Acc: 86.675058%
+Test Loss: 1.462225, Acc: 54.140000%
+epoch 13
+Train Loss: 0.095610, Acc: 87.776250%
+Val Loss: 0.465877, Acc: 84.463226%
+Test Loss: 1.418321, Acc: 55.920000%
+epoch 14
+Train Loss: 0.096672, Acc: 87.076782%
+Val Loss: 0.369197, Acc: 87.987772%
+Test Loss: 1.355477, Acc: 58.230000%
+epoch 15
+Train Loss: 0.083632, Acc: 89.047648%
+Val Loss: 0.382285, Acc: 87.879878%
+Test Loss: 1.608635, Acc: 53.080000%
+epoch 16
+Train Loss: 0.078522, Acc: 89.661426%
+Val Loss: 0.329526, Acc: 88.473296%
+Test Loss: 1.388206, Acc: 58.670000%
+epoch 17
+Train Loss: 0.073042, Acc: 90.422670%
+Val Loss: 0.382913, Acc: 87.178565%
+Test Loss: 1.236166, Acc: 61.210000%
+epoch 18
+Train Loss: 0.072422, Acc: 90.689703%
+Val Loss: 2.857756, Acc: 55.385722%
+Test Loss: 3.258152, Acc: 37.290000%
+epoch 19
+Train Loss: 0.127560, Acc: 82.993563%
+Val Loss: 0.418055, Acc: 86.333393%
+Test Loss: 1.320511, Acc: 58.150000%
+epoch 20
+Train Loss: 0.081969, Acc: 89.035691%
+Val Loss: 0.376018, Acc: 87.807948%
+Test Loss: 1.190830, Acc: 62.850000%
+epoch 21
+Train Loss: 0.070682, Acc: 90.647855%
+Val Loss: 0.339352, Acc: 88.581190%
+Test Loss: 1.132091, Acc: 64.480000%
+epoch 22
+Train Loss: 0.063822, Acc: 91.297503%
+Val Loss: 0.290394, Acc: 90.415393%
+Test Loss: 1.261776, Acc: 61.800000%
+epoch 23
+Train Loss: 0.059583, Acc: 91.787728%
+Val Loss: 0.259951, Acc: 91.440388%
+Test Loss: 1.138852, Acc: 64.020000%
+epoch 24
+Train Loss: 0.056202, Acc: 92.098603%
+Val Loss: 0.322561, Acc: 89.516274%
+Test Loss: 1.240842, Acc: 62.170000%
+epoch 25
+Train Loss: 0.053177, Acc: 92.353680%
+Val Loss: 0.268875, Acc: 91.494336%
+Test Loss: 1.082909, Acc: 67.530000%
+epoch 26
+Train Loss: 0.051211, Acc: 92.650605%
+Val Loss: 0.274394, Acc: 91.080741%
+Test Loss: 1.231077, Acc: 65.670000%
+epoch 27
+Train Loss: 0.058504, Acc: 91.845519%
+Val Loss: 0.475835, Acc: 84.517173%
+Test Loss: 1.241539, Acc: 62.760000%
+epoch 28
+Train Loss: 0.074532, Acc: 89.786971%
+Val Loss: 0.289753, Acc: 90.613199%
+Test Loss: 1.163035, Acc: 64.830000%
+epoch 29
+Train Loss: 0.053156, Acc: 92.465276%
+Val Loss: 0.260394, Acc: 91.458371%
+Test Loss: 1.126775, Acc: 67.520000%
+epoch 30
+Train Loss: 0.047522, Acc: 93.188657%
+Val Loss: 0.297931, Acc: 90.397411%
+Test Loss: 1.310913, Acc: 64.360000%
+epoch 31
+Train Loss: 0.060838, Acc: 91.389171%
+Val Loss: 0.228505, Acc: 92.249595%
+Test Loss: 1.165337, Acc: 65.450000%
+epoch 32
+Train Loss: 0.044395, Acc: 93.358044%
+Val Loss: 0.279306, Acc: 91.062758%
+Test Loss: 1.164057, Acc: 67.290000%
+epoch 33
+Train Loss: 0.041250, Acc: 93.798450%
+Val Loss: 0.241246, Acc: 92.033807%
+Test Loss: 1.034878, Acc: 69.580000%
+epoch 34
+Train Loss: 0.039077, Acc: 93.999721%
+Val Loss: 0.222800, Acc: 92.771084%
+Test Loss: 1.034220, Acc: 69.830000%
+epoch 35
+Train Loss: 0.037903, Acc: 94.095375%
+Val Loss: 0.229620, Acc: 92.681172%
+Test Loss: 1.093218, Acc: 68.720000%
+epoch 36
+Train Loss: 0.036938, Acc: 94.264762%
+Val Loss: 0.221481, Acc: 92.860996%
+Test Loss: 1.014762, Acc: 69.790000%
+epoch 37
+Train Loss: 0.036601, Acc: 94.475997%
+Val Loss: 0.267758, Acc: 91.494336%
+Test Loss: 1.088690, Acc: 68.680000%
+epoch 38
+Train Loss: 0.036101, Acc: 94.360415%
+Val Loss: 0.493483, Acc: 85.308398%
+Test Loss: 1.617526, Acc: 60.710000%
+epoch 39
+Train Loss: 0.066170, Acc: 90.727566%
+Val Loss: 0.309455, Acc: 90.091710%
+Test Loss: 1.182890, Acc: 65.010000%
+epoch 40
+Train Loss: 0.040517, Acc: 93.874175%
+Val Loss: 0.250546, Acc: 92.069772%
+Test Loss: 1.084567, Acc: 68.630000%
+epoch 41
+Train Loss: 0.038223, Acc: 94.173093%
+Val Loss: 0.256700, Acc: 92.051789%
+Test Loss: 1.111656, Acc: 68.460000%
+epoch 42
+Train Loss: 0.032685, Acc: 94.705167%
+Val Loss: 0.227438, Acc: 92.699155%
+Test Loss: 1.123459, Acc: 69.090000%
+epoch 43
+Train Loss: 0.034131, Acc: 94.434148%
+Val Loss: 0.252729, Acc: 91.818018%
+Test Loss: 1.128014, Acc: 68.460000%
+epoch 44
+Train Loss: 0.033302, Acc: 94.691218%
+Val Loss: 0.281568, Acc: 91.008811%
+Test Loss: 1.183030, Acc: 67.460000%
+epoch 45
+Train Loss: 0.043953, Acc: 93.362029%
+Val Loss: 0.317745, Acc: 89.929869%
+Test Loss: 1.428498, Acc: 61.890000%
+epoch 46
+Train Loss: 0.032466, Acc: 94.792850%
+Val Loss: 0.206840, Acc: 93.328538%
+Test Loss: 1.099576, Acc: 68.770000%
+epoch 47
+Train Loss: 0.032916, Acc: 94.762958%
+Val Loss: 0.216457, Acc: 92.896961%
+Test Loss: 1.389941, Acc: 63.480000%
+epoch 48
+Train Loss: 0.030799, Acc: 95.045934%
+Val Loss: 0.268664, Acc: 91.116706%
+Test Loss: 1.090774, Acc: 70.910000%
+epoch 49
+Train Loss: 0.030932, Acc: 94.970208%
+Val Loss: 0.235775, Acc: 92.303543%
+Test Loss: 1.438785, Acc: 64.170000%
+epoch 50
+Train Loss: 0.031899, Acc: 94.950280%
+Val Loss: 0.208080, Acc: 93.634238%
+Test Loss: 1.042386, Acc: 70.990000%
+epoch 51
+Train Loss: 0.030368, Acc: 95.033977%
+Val Loss: 0.240816, Acc: 92.537313%
+Test Loss: 1.341681, Acc: 65.940000%
+epoch 52
+Train Loss: 0.028767, Acc: 95.289054%
+Val Loss: 0.228210, Acc: 92.681172%
+Test Loss: 1.059049, Acc: 70.130000%
+epoch 53
+Train Loss: 0.027888, Acc: 95.382715%
+Val Loss: 0.201282, Acc: 93.706168%
+Test Loss: 1.088405, Acc: 71.670000%
+epoch 54
+Train Loss: 0.027914, Acc: 95.342859%
+Val Loss: 0.229818, Acc: 92.519331%
+Test Loss: 1.122913, Acc: 68.900000%
+epoch 55
+Train Loss: 0.029727, Acc: 95.281082%
+Val Loss: 0.445161, Acc: 86.531199%
+Test Loss: 1.709277, Acc: 58.710000%
+epoch 56
+Train Loss: 0.087451, Acc: 88.254519%
+Val Loss: 0.291765, Acc: 90.811005%
+Test Loss: 1.386188, Acc: 60.390000%
+epoch 57
+Train Loss: 0.043296, Acc: 93.635041%
+Val Loss: 0.251082, Acc: 92.123719%
+Test Loss: 1.064758, Acc: 68.800000%
+epoch 58
+Train Loss: 0.035307, Acc: 94.677268%
+Val Loss: 0.224716, Acc: 93.130732%
+Test Loss: 1.079580, Acc: 69.490000%
+epoch 59
+Train Loss: 0.032095, Acc: 94.918395%
+Val Loss: 0.276929, Acc: 91.170653%
+Test Loss: 1.269403, Acc: 65.600000%
+epoch 60
+Train Loss: 0.032264, Acc: 94.824734%
+Val Loss: 0.310913, Acc: 90.397411%
+Test Loss: 1.156908, Acc: 67.190000%
+epoch 61
+Train Loss: 0.025738, Acc: 95.580000%
+Val Loss: 0.193721, Acc: 93.796080%
+Test Loss: 1.185817, Acc: 69.110000%
+epoch 62
+Train Loss: 0.028017, Acc: 95.366772%
+Val Loss: 0.201609, Acc: 93.508362%
+Test Loss: 1.141802, Acc: 69.380000%
+epoch 63
+Train Loss: 0.030010, Acc: 95.159523%
+Val Loss: 0.241771, Acc: 92.627225%
+Test Loss: 1.351410, Acc: 64.500000%
+epoch 64
+Train Loss: 0.027061, Acc: 95.643770%
+Val Loss: 0.344275, Acc: 89.228556%
+Test Loss: 1.532753, Acc: 62.610000%
+epoch 65
+Train Loss: 0.027985, Acc: 95.502282%
+Val Loss: 0.229157, Acc: 92.447402%
+Test Loss: 1.093699, Acc: 69.220000%
+epoch 66
+Train Loss: 0.025538, Acc: 95.627827%
+Val Loss: 0.241108, Acc: 92.573278%
+Test Loss: 1.195000, Acc: 68.080000%
+epoch 67
+Train Loss: 0.029661, Acc: 95.223292%
+Val Loss: 0.215983, Acc: 93.382485%
+Test Loss: 1.087995, Acc: 69.600000%
+epoch 68
+Train Loss: 0.024500, Acc: 95.906817%
+Val Loss: 0.212485, Acc: 93.112750%
+Test Loss: 1.144084, Acc: 69.010000%
+epoch 69
+Train Loss: 0.028264, Acc: 95.346844%
+Val Loss: 0.209992, Acc: 93.256609%
+Test Loss: 1.167716, Acc: 68.500000%
+epoch 70
+Train Loss: 0.027668, Acc: 95.396664%
+Val Loss: 0.229853, Acc: 92.825031%
+Test Loss: 1.124802, Acc: 69.870000%
+epoch 71
+Train Loss: 0.027206, Acc: 95.334888%
+Val Loss: 0.217083, Acc: 93.130732%
+Test Loss: 1.145838, Acc: 68.860000%
+epoch 72
+Train Loss: 0.023784, Acc: 95.797214%
+Val Loss: 0.267735, Acc: 91.422406%
+Test Loss: 1.308153, Acc: 66.620000%
+epoch 73
+Train Loss: 0.027046, Acc: 95.699568%
+Val Loss: 0.747425, Acc: 81.981658%
+Test Loss: 2.721696, Acc: 49.520000%
+epoch 74
+Train Loss: 0.090931, Acc: 87.981507%
+Val Loss: 0.576599, Acc: 81.478151%
+Test Loss: 1.475346, Acc: 57.590000%
+epoch 75
+Train Loss: 0.068018, Acc: 90.317052%
+Val Loss: 0.322056, Acc: 89.893904%
+Test Loss: 1.050736, Acc: 67.910000%
+epoch 76
+Train Loss: 0.040186, Acc: 94.111317%
+Val Loss: 0.221827, Acc: 93.148714%
+Test Loss: 1.126745, Acc: 69.360000%
+epoch 77
+Train Loss: 0.032832, Acc: 94.958251%
+Val Loss: 0.314447, Acc: 90.631181%
+Test Loss: 1.290071, Acc: 65.180000%
+epoch 78
+Train Loss: 0.034491, Acc: 94.617485%
+Val Loss: 0.209960, Acc: 93.400468%
+Test Loss: 1.051240, Acc: 69.260000%
+epoch 79
+Train Loss: 0.029455, Acc: 95.336880%
+Val Loss: 1.692093, Acc: 68.944434%
+Test Loss: 3.342017, Acc: 48.670000%
+epoch 80
+Train Loss: 0.049595, Acc: 92.762201%
+Val Loss: 0.227019, Acc: 92.717137%
+Test Loss: 1.014655, Acc: 70.680000%
+epoch 81
+Train Loss: 0.032104, Acc: 94.788864%
+Val Loss: 0.192913, Acc: 93.939939%
+Test Loss: 1.051409, Acc: 71.900000%
+epoch 82
+Train Loss: 0.029520, Acc: 95.229270%
+Val Loss: 0.251429, Acc: 92.519331%
+Test Loss: 1.165813, Acc: 68.180000%
+epoch 83
+Train Loss: 0.035171, Acc: 94.507881%
+Val Loss: 0.216950, Acc: 93.400468%
+Test Loss: 1.148866, Acc: 69.210000%
+epoch 84
+Train Loss: 0.025703, Acc: 95.599928%
+Val Loss: 0.211624, Acc: 93.202661%
+Test Loss: 1.267386, Acc: 66.580000%
+epoch 85
+Train Loss: 0.024643, Acc: 95.717503%
+Val Loss: 0.238699, Acc: 92.699155%
+Test Loss: 1.058532, Acc: 71.230000%
+epoch 86
+Train Loss: 0.021594, Acc: 96.094139%
+Val Loss: 0.231134, Acc: 93.040820%
+Test Loss: 1.347243, Acc: 67.400000%
+epoch 87
+Train Loss: 0.024749, Acc: 95.829099%
+Val Loss: 0.221246, Acc: 93.310556%
+Test Loss: 1.164858, Acc: 69.370000%
+epoch 88
+Train Loss: 0.026333, Acc: 95.719495%
+Val Loss: 0.217061, Acc: 93.220644%
+Test Loss: 1.153514, Acc: 68.780000%
+epoch 89
+Train Loss: 0.019803, Acc: 96.345230%
+Val Loss: 0.190573, Acc: 94.335551%
+Test Loss: 1.162230, Acc: 70.190000%
+epoch 90
+Train Loss: 0.025904, Acc: 95.659712%
+Val Loss: 0.223125, Acc: 93.022838%
+Test Loss: 1.144508, Acc: 69.540000%
+epoch 91
+Train Loss: 0.025388, Acc: 95.667683%
+Val Loss: 0.236307, Acc: 92.825031%
+Test Loss: 1.199546, Acc: 69.110000%
+epoch 92
+Train Loss: 0.027352, Acc: 95.480361%
+Val Loss: 0.210057, Acc: 93.436432%
+Test Loss: 1.048181, Acc: 70.950000%
+epoch 93
+Train Loss: 0.022416, Acc: 96.070226%
+Val Loss: 0.254930, Acc: 92.033807%
+Test Loss: 1.283026, Acc: 66.150000%
+epoch 94
+Train Loss: 0.024573, Acc: 95.870947%
+Val Loss: 0.194757, Acc: 94.263622%
+Test Loss: 1.043585, Acc: 72.120000%
+epoch 95
+Train Loss: 0.021562, Acc: 95.998485%
+Val Loss: 0.235912, Acc: 92.896961%
+Test Loss: 1.249644, Acc: 67.250000%
+epoch 96
+Train Loss: 0.026203, Acc: 95.671669%
+Val Loss: 0.211415, Acc: 93.544327%
+Test Loss: 1.244655, Acc: 68.950000%
+epoch 97
+Train Loss: 0.025707, Acc: 95.591957%
+Val Loss: 0.236655, Acc: 92.914943%
+Test Loss: 1.191769, Acc: 68.590000%
+epoch 98
+Train Loss: 0.030611, Acc: 95.303003%
+Val Loss: 0.472195, Acc: 85.865851%
+Test Loss: 1.591152, Acc: 59.310000%
+epoch 99
+Train Loss: 0.087073, Acc: 87.756322%
+Val Loss: 0.301442, Acc: 90.451358%
+Test Loss: 1.102156, Acc: 67.410000%
+epoch 100
+Train Loss: 0.043950, Acc: 93.465654%
+Val Loss: 0.213149, Acc: 93.292573%
+Test Loss: 1.232680, Acc: 66.700000%
+epoch 101
+Train Loss: 0.021626, Acc: 96.032363%
+Val Loss: 0.156680, Acc: 95.108793%
+Test Loss: 0.929773, Acc: 72.960000%
+epoch 102
+Train Loss: 0.016386, Acc: 96.773679%
+Val Loss: 0.153274, Acc: 95.090811%
+Test Loss: 0.873118, Acc: 75.050000%
+epoch 103
+Train Loss: 0.014057, Acc: 97.154301%
+Val Loss: 0.150297, Acc: 95.486423%
+Test Loss: 0.888364, Acc: 75.330000%
+epoch 104
+Train Loss: 0.013406, Acc: 97.164265%
+Val Loss: 0.140234, Acc: 95.504406%
+Test Loss: 0.942048, Acc: 74.250000%
+epoch 105
+Train Loss: 0.011808, Acc: 97.385465%
+Val Loss: 0.141459, Acc: 95.576335%
+Test Loss: 0.938876, Acc: 75.360000%
+epoch 106
+Train Loss: 0.010747, Acc: 97.568801%
+Val Loss: 0.143985, Acc: 95.738177%
+Test Loss: 0.940083, Acc: 75.210000%
+epoch 107
+Train Loss: 0.010292, Acc: 97.652498%
+Val Loss: 0.141736, Acc: 95.594318%
+Test Loss: 0.926519, Acc: 75.390000%
+epoch 108
+Train Loss: 0.009573, Acc: 97.931488%
+Val Loss: 0.138541, Acc: 95.720194%
+Test Loss: 0.958544, Acc: 75.830000%
+epoch 109
+Train Loss: 0.009025, Acc: 97.919531%
+Val Loss: 0.142908, Acc: 95.630282%
+Test Loss: 0.987633, Acc: 74.960000%
+epoch 110
+Train Loss: 0.009361, Acc: 98.033120%
+Val Loss: 0.143433, Acc: 95.684229%
+Test Loss: 0.978978, Acc: 75.270000%
+epoch 111
+Train Loss: 0.010742, Acc: 97.467169%
+Val Loss: 0.142099, Acc: 95.989930%
+Test Loss: 1.038013, Acc: 74.460000%
+epoch 112
+Train Loss: 0.008345, Acc: 98.029135%
+Val Loss: 0.138241, Acc: 95.846071%
+Test Loss: 1.003666, Acc: 75.250000%
+epoch 113
+Train Loss: 0.009203, Acc: 97.993264%
+Val Loss: 0.142314, Acc: 95.846071%
+Test Loss: 1.043240, Acc: 74.860000%
+epoch 114
+Train Loss: 0.007603, Acc: 98.188557%
+Val Loss: 0.143792, Acc: 95.720194%
+Test Loss: 1.074217, Acc: 74.480000%
+epoch 115
+Train Loss: 0.006925, Acc: 98.224428%
+Val Loss: 0.139835, Acc: 95.774141%
+Test Loss: 1.021276, Acc: 75.600000%
+epoch 116
+Train Loss: 0.006670, Acc: 98.334031%
+Val Loss: 0.136450, Acc: 96.061859%
+Test Loss: 0.999625, Acc: 75.700000%
+epoch 117
+Train Loss: 0.006152, Acc: 98.417728%
+Val Loss: 0.132351, Acc: 95.971947%
+Test Loss: 1.074442, Acc: 74.760000%
+epoch 118
+Train Loss: 0.006120, Acc: 98.393814%
+Val Loss: 0.135803, Acc: 95.971947%
+Test Loss: 1.017368, Acc: 75.510000%
+epoch 119
+Train Loss: 0.005799, Acc: 98.581136%
+Val Loss: 0.142046, Acc: 95.971947%
+Test Loss: 1.038777, Acc: 74.880000%
+epoch 120
+Train Loss: 0.005476, Acc: 98.601064%
+Val Loss: 0.132837, Acc: 96.043877%
+Test Loss: 1.034234, Acc: 75.870000%
+epoch 121
+Train Loss: 0.005599, Acc: 98.543273%
+Val Loss: 0.130309, Acc: 96.511419%
+Test Loss: 1.068206, Acc: 75.450000%
+epoch 122
+Train Loss: 0.005280, Acc: 98.624978%
+Val Loss: 0.134468, Acc: 96.187736%
+Test Loss: 1.023942, Acc: 76.040000%
+epoch 123
+Train Loss: 0.005043, Acc: 98.712660%
+Val Loss: 0.133358, Acc: 96.511419%
+Test Loss: 1.076755, Acc: 75.680000%
+epoch 124
+Train Loss: 0.004743, Acc: 98.730595%
+Val Loss: 0.135795, Acc: 96.295630%
+Test Loss: 1.034333, Acc: 75.460000%
+epoch 125
+Train Loss: 0.004624, Acc: 98.764473%
+Val Loss: 0.137610, Acc: 96.367560%
+Test Loss: 1.057465, Acc: 76.240000%
+epoch 126
+Train Loss: 0.004728, Acc: 98.830235%
+Val Loss: 0.132314, Acc: 96.079842%
+Test Loss: 1.058562, Acc: 75.830000%
+epoch 127
+Train Loss: 0.004811, Acc: 98.772444%
+Val Loss: 0.137830, Acc: 96.331595%
+Test Loss: 1.083875, Acc: 75.360000%
+epoch 128
+Train Loss: 0.004308, Acc: 98.899982%
+Val Loss: 0.142233, Acc: 96.115807%
+Test Loss: 1.073642, Acc: 75.740000%
+epoch 129
+Train Loss: 0.004502, Acc: 98.880054%
+Val Loss: 0.132572, Acc: 96.205718%
+Test Loss: 1.092981, Acc: 75.480000%
+epoch 130
+Train Loss: 0.004345, Acc: 98.894004%
+Val Loss: 0.137687, Acc: 96.205718%
+Test Loss: 1.133323, Acc: 75.400000%
+epoch 131
+Train Loss: 0.004341, Acc: 98.880054%
+Val Loss: 0.144873, Acc: 96.385542%
+Test Loss: 1.104501, Acc: 75.870000%
+epoch 132
+Train Loss: 0.003850, Acc: 98.983679%
+Val Loss: 0.131729, Acc: 96.079842%
+Test Loss: 1.066028, Acc: 75.930000%
+epoch 133
+Train Loss: 0.004001, Acc: 98.983679%
+Val Loss: 0.142090, Acc: 96.025895%
+Test Loss: 1.054653, Acc: 76.000000%
+epoch 134
+Train Loss: 0.003758, Acc: 99.065383%
+Val Loss: 0.141142, Acc: 96.133789%
+Test Loss: 1.125972, Acc: 75.000000%
+epoch 135
+Train Loss: 0.003809, Acc: 98.967737%
+Val Loss: 0.136859, Acc: 96.295630%
+Test Loss: 1.091771, Acc: 75.640000%
+epoch 136
+Train Loss: 0.003341, Acc: 99.125167%
+Val Loss: 0.136279, Acc: 96.241683%
+Test Loss: 1.041719, Acc: 77.050000%
+epoch 137
+Train Loss: 0.003483, Acc: 99.103246%
+Val Loss: 0.140343, Acc: 96.205718%
+Test Loss: 1.094238, Acc: 76.030000%
+epoch 138
+Train Loss: 0.003432, Acc: 99.107232%
+Val Loss: 0.137021, Acc: 96.439489%
+Test Loss: 1.140883, Acc: 75.600000%
+epoch 139
+Train Loss: 0.003100, Acc: 99.167015%
+Val Loss: 0.144754, Acc: 96.169754%
+Test Loss: 1.136785, Acc: 75.180000%
+epoch 140
+Train Loss: 0.003510, Acc: 99.198900%
+Val Loss: 0.135469, Acc: 96.457472%
+Test Loss: 1.120038, Acc: 75.650000%
+epoch 141
+Train Loss: 0.003451, Acc: 99.151073%
+Val Loss: 0.139695, Acc: 96.313613%
+Test Loss: 1.120489, Acc: 75.530000%
+epoch 142
+Train Loss: 0.003124, Acc: 99.250712%
+Val Loss: 0.137141, Acc: 96.313613%
+Test Loss: 1.156350, Acc: 75.650000%
+epoch 143
+Train Loss: 0.003078, Acc: 99.282597%
+Val Loss: 0.140154, Acc: 96.295630%
+Test Loss: 1.147023, Acc: 76.110000%
+epoch 144
+Train Loss: 0.003450, Acc: 99.190929%
+Val Loss: 0.165464, Acc: 95.450459%
+Test Loss: 1.078053, Acc: 76.210000%
+epoch 145
+Train Loss: 0.007479, Acc: 98.216456%
+Val Loss: 0.138419, Acc: 96.367560%
+Test Loss: 1.112342, Acc: 75.600000%
+epoch 146
+Train Loss: 0.004003, Acc: 99.043463%
+Val Loss: 0.141432, Acc: 96.205718%
+Test Loss: 1.105230, Acc: 75.550000%
+epoch 147
+Train Loss: 0.003310, Acc: 99.141109%
+Val Loss: 0.137462, Acc: 96.241683%
+Test Loss: 1.124139, Acc: 75.370000%
+epoch 148
+Train Loss: 0.003671, Acc: 99.266655%
+Val Loss: 0.147045, Acc: 96.151771%
+Test Loss: 1.227637, Acc: 74.360000%
+epoch 149
+Train Loss: 0.008389, Acc: 98.338016%
+Val Loss: 0.141900, Acc: 96.007912%
+Test Loss: 1.191975, Acc: 73.520000%
+epoch 150
+Train Loss: 0.004411, Acc: 98.987665%
+Val Loss: 0.139480, Acc: 96.331595%
+Test Loss: 1.121978, Acc: 74.960000%
+epoch 151
+Train Loss: 0.003386, Acc: 99.232777%
+Val Loss: 0.146016, Acc: 96.259666%
+Test Loss: 1.109911, Acc: 75.740000%
+epoch 152
+Train Loss: 0.003752, Acc: 99.264662%
+Val Loss: 0.139729, Acc: 96.637295%
+Test Loss: 1.095970, Acc: 75.420000%
+epoch 153
+Train Loss: 0.003202, Acc: 99.228792%
+Val Loss: 0.138990, Acc: 96.511419%
+Test Loss: 1.153727, Acc: 74.920000%
+epoch 154
+Train Loss: 0.003148, Acc: 99.262669%
+Val Loss: 0.138594, Acc: 96.205718%
+Test Loss: 1.116462, Acc: 75.060000%
+epoch 155
+Train Loss: 0.003295, Acc: 99.246727%
+Val Loss: 0.145720, Acc: 96.097824%
+Test Loss: 1.122827, Acc: 75.270000%
+epoch 156
+Train Loss: 0.003080, Acc: 99.262669%
+Val Loss: 0.137226, Acc: 96.493436%
+Test Loss: 1.072788, Acc: 75.940000%
+epoch 157
+Train Loss: 0.003113, Acc: 99.252705%
+Val Loss: 0.138084, Acc: 96.421507%
+Test Loss: 1.065119, Acc: 76.040000%
+epoch 158
+Train Loss: 0.002735, Acc: 99.326438%
+Val Loss: 0.130056, Acc: 96.673260%
+Test Loss: 1.141735, Acc: 74.860000%
+epoch 159
+Train Loss: 0.002973, Acc: 99.312489%
+Val Loss: 0.137534, Acc: 96.295630%
+Test Loss: 1.149060, Acc: 75.100000%
+epoch 160
+Train Loss: 0.003001, Acc: 99.306510%
+Val Loss: 0.136744, Acc: 96.295630%
+Test Loss: 1.165775, Acc: 74.800000%
+epoch 161
+Train Loss: 0.002790, Acc: 99.374265%
+Val Loss: 0.143628, Acc: 96.295630%
+Test Loss: 1.151383, Acc: 74.950000%
+epoch 162
+Train Loss: 0.002708, Acc: 99.346366%
+Val Loss: 0.143649, Acc: 96.025895%
+Test Loss: 1.109473, Acc: 75.620000%
+epoch 163
+Train Loss: 0.002907, Acc: 99.322453%
+Val Loss: 0.133398, Acc: 96.529401%
+Test Loss: 1.144844, Acc: 75.240000%
+epoch 164
+Train Loss: 0.002988, Acc: 99.404157%
+Val Loss: 0.134962, Acc: 96.583348%
+Test Loss: 1.147343, Acc: 75.140000%
+epoch 165
+Train Loss: 0.002660, Acc: 99.420099%
+Val Loss: 0.138768, Acc: 96.241683%
+Test Loss: 1.130769, Acc: 75.190000%
+epoch 166
+Train Loss: 0.002619, Acc: 99.360316%
+Val Loss: 0.137451, Acc: 96.385542%
+Test Loss: 1.125625, Acc: 75.530000%
+epoch 167
+Train Loss: 0.002944, Acc: 99.314482%
+Val Loss: 0.142016, Acc: 96.349577%
+Test Loss: 1.133067, Acc: 75.520000%
+epoch 168
+Train Loss: 0.002875, Acc: 99.358323%
+Val Loss: 0.136642, Acc: 96.547384%
+Test Loss: 1.123187, Acc: 75.260000%
+epoch 169
+Train Loss: 0.003085, Acc: 99.414121%
+Val Loss: 0.143985, Acc: 96.313613%
+Test Loss: 1.140428, Acc: 74.910000%
+epoch 170
+Train Loss: 0.002879, Acc: 99.378251%
+Val Loss: 0.139188, Acc: 96.187736%
+Test Loss: 1.109552, Acc: 75.970000%
+epoch 171
+Train Loss: 0.002578, Acc: 99.410135%
+Val Loss: 0.134907, Acc: 96.565366%
+Test Loss: 1.119422, Acc: 76.160000%
+epoch 172
+Train Loss: 0.003446, Acc: 99.414121%
+Val Loss: 0.142980, Acc: 96.421507%
+Test Loss: 1.092971, Acc: 76.370000%
+epoch 173
+Train Loss: 0.002830, Acc: 99.346366%
+Val Loss: 0.136938, Acc: 96.529401%
+Test Loss: 1.116169, Acc: 75.630000%
+epoch 174
+Train Loss: 0.002642, Acc: 99.370280%
+Val Loss: 0.135677, Acc: 96.439489%
+Test Loss: 1.119855, Acc: 75.740000%
+epoch 175
+Train Loss: 0.002678, Acc: 99.404157%
+Val Loss: 0.145339, Acc: 96.259666%
+Test Loss: 1.124192, Acc: 75.330000%
+epoch 176
+Train Loss: 0.002476, Acc: 99.434049%
+Val Loss: 0.143350, Acc: 96.097824%
+Test Loss: 1.125409, Acc: 75.530000%
+epoch 177
+Train Loss: 0.002226, Acc: 99.543652%
+Val Loss: 0.145604, Acc: 96.223701%
+Test Loss: 1.109769, Acc: 75.320000%
+epoch 178
+Train Loss: 0.002398, Acc: 99.440027%
+Val Loss: 0.134510, Acc: 96.511419%
+Test Loss: 1.114236, Acc: 75.450000%
+epoch 179
+Train Loss: 0.002507, Acc: 99.440027%
+Val Loss: 0.141489, Acc: 96.349577%
+Test Loss: 1.158039, Acc: 75.410000%
+epoch 180
+Train Loss: 0.002504, Acc: 99.457962%
+Val Loss: 0.140961, Acc: 96.547384%
+Test Loss: 1.099662, Acc: 75.810000%
+epoch 181
+Train Loss: 0.002439, Acc: 99.420099%
+Val Loss: 0.141692, Acc: 96.295630%
+Test Loss: 1.142476, Acc: 75.120000%
+epoch 182
+Train Loss: 0.002309, Acc: 99.479883%
+Val Loss: 0.137949, Acc: 96.493436%
+Test Loss: 1.125745, Acc: 75.420000%
+epoch 183
+Train Loss: 0.002354, Acc: 99.449991%
+Val Loss: 0.136459, Acc: 96.493436%
+Test Loss: 1.113846, Acc: 75.920000%
+epoch 184
+Train Loss: 0.002474, Acc: 99.440027%
+Val Loss: 0.139973, Acc: 96.475454%
+Test Loss: 1.105387, Acc: 75.510000%
+epoch 185
+Train Loss: 0.002783, Acc: 99.495825%
+Val Loss: 0.138640, Acc: 96.277648%
+Test Loss: 1.129767, Acc: 75.970000%
+epoch 186
+Train Loss: 0.002991, Acc: 99.469919%
+Val Loss: 0.138346, Acc: 96.511419%
+Test Loss: 1.128417, Acc: 75.640000%
+epoch 187
+Train Loss: 0.002374, Acc: 99.436042%
+Val Loss: 0.133781, Acc: 96.457472%
+Test Loss: 1.098794, Acc: 75.820000%
+epoch 188
+Train Loss: 0.002326, Acc: 99.442020%
+Val Loss: 0.139820, Acc: 96.529401%
+Test Loss: 1.111991, Acc: 76.100000%
+epoch 189
+Train Loss: 0.002609, Acc: 99.447998%
+Val Loss: 0.143324, Acc: 96.367560%
+Test Loss: 1.100980, Acc: 75.810000%
+epoch 190
+Train Loss: 0.005841, Acc: 99.489847%
+Val Loss: 0.138346, Acc: 96.493436%
+Test Loss: 1.128276, Acc: 75.700000%
+epoch 191
+Train Loss: 0.002396, Acc: 99.420099%
+Val Loss: 0.138459, Acc: 96.439489%
+Test Loss: 1.107224, Acc: 76.230000%
+epoch 192
+Train Loss: 0.002614, Acc: 99.491840%
+Val Loss: 0.146277, Acc: 96.295630%
+Test Loss: 1.162537, Acc: 75.460000%
+epoch 193
+Train Loss: 0.002571, Acc: 99.442020%
+Val Loss: 0.140757, Acc: 96.349577%
+Test Loss: 1.101627, Acc: 75.890000%
+epoch 194
+Train Loss: 0.002697, Acc: 99.493832%
+Val Loss: 0.140194, Acc: 96.601331%
+Test Loss: 1.150857, Acc: 76.030000%
+epoch 195
+Train Loss: 0.002247, Acc: 99.447998%
+Val Loss: 0.136205, Acc: 96.313613%
+Test Loss: 1.102253, Acc: 76.360000%
+epoch 196
+Train Loss: 0.002202, Acc: 99.477890%
+Val Loss: 0.139055, Acc: 96.583348%
+Test Loss: 1.109413, Acc: 75.980000%
+epoch 197
+Train Loss: 0.002361, Acc: 99.521731%
+Val Loss: 0.131115, Acc: 96.781154%
+Test Loss: 1.099812, Acc: 75.820000%
+epoch 198
+Train Loss: 0.002153, Acc: 99.531695%
+Val Loss: 0.136787, Acc: 96.691243%
+Test Loss: 1.081062, Acc: 76.270000%
+epoch 199
+Train Loss: 0.002105, Acc: 99.503796%
+Val Loss: 0.131338, Acc: 96.709225%
+Test Loss: 1.129864, Acc: 76.220000%
+epoch 200
+Train Loss: 0.003103, Acc: 99.517746%
+Val Loss: 0.143540, Acc: 96.493436%
+Test Loss: 1.126328, Acc: 75.600000%
+Best Test Acc: 77.050000%
+Fine Tune Loss: 0.087068, Acc: 97.413627%
+Test Loss: 1.066375, Acc: 74.110000%
+Fine Tune Loss: 0.018595, Acc: 99.806987%
+Test Loss: 1.041624, Acc: 74.010000%
+Fine Tune Loss: 0.014206, Acc: 99.903494%
+Test Loss: 0.980285, Acc: 75.210000%
+Fine Tune Loss: 0.012795, Acc: 99.884192%
+Test Loss: 0.976636, Acc: 75.160000%
+Fine Tune Loss: 0.010190, Acc: 99.884192%
+Test Loss: 0.978202, Acc: 75.110000%
+Fine Tune Loss: 0.010165, Acc: 99.922795%
+Test Loss: 0.969880, Acc: 75.580000%
+Fine Tune Loss: 0.009390, Acc: 99.961397%
+Test Loss: 0.971964, Acc: 75.240000%
+Fine Tune Loss: 0.008082, Acc: 99.961397%
+Test Loss: 0.974699, Acc: 75.130000%
+Fine Tune Loss: 0.008358, Acc: 99.922795%
+Test Loss: 0.980469, Acc: 74.730000%
+Fine Tune Loss: 0.008796, Acc: 99.980699%
+Test Loss: 0.949407, Acc: 75.800000%
+Fine Tune Loss: 0.007439, Acc: 99.961397%
+Test Loss: 0.948994, Acc: 75.760000%
+Fine Tune Loss: 0.008001, Acc: 99.942096%
+Test Loss: 0.965054, Acc: 75.630000%
+Fine Tune Loss: 0.006693, Acc: 99.961397%
+Test Loss: 0.943433, Acc: 76.010000%
+Fine Tune Loss: 0.005997, Acc: 100.000000%
+Test Loss: 0.950516, Acc: 75.850000%
+Fine Tune Loss: 0.006540, Acc: 99.980699%
+Test Loss: 0.926211, Acc: 76.660000%
+Fine Tune Loss: 0.006298, Acc: 99.980699%
+Test Loss: 0.944592, Acc: 75.880000%
+Fine Tune Loss: 0.006234, Acc: 99.980699%
+Test Loss: 0.943782, Acc: 75.800000%
+Fine Tune Loss: 0.006161, Acc: 99.980699%
+Test Loss: 0.952641, Acc: 75.990000%
+Fine Tune Loss: 0.005529, Acc: 100.000000%
+Test Loss: 0.929509, Acc: 76.070000%
+Fine Tune Loss: 0.006742, Acc: 99.942096%
+Test Loss: 0.956876, Acc: 76.020000%
+Fine Tune Loss: 0.005550, Acc: 99.980699%
+Test Loss: 0.950156, Acc: 76.140000%
+Fine Tune Loss: 0.005549, Acc: 99.980699%
+Test Loss: 0.941328, Acc: 76.330000%
+Fine Tune Loss: 0.006024, Acc: 99.942096%
+Test Loss: 0.926489, Acc: 76.200000%
+Fine Tune Loss: 0.005159, Acc: 100.000000%
+Test Loss: 0.955721, Acc: 76.260000%
+Fine Tune Loss: 0.004772, Acc: 100.000000%
+Test Loss: 0.951367, Acc: 76.370000%
+Fine Tune Loss: 0.005365, Acc: 100.000000%
+Test Loss: 0.923050, Acc: 76.500000%
+Fine Tune Loss: 0.004994, Acc: 100.000000%
+Test Loss: 0.948406, Acc: 76.070000%
+Fine Tune Loss: 0.005593, Acc: 99.980699%
+Test Loss: 0.952302, Acc: 76.120000%
+Fine Tune Loss: 0.004920, Acc: 99.980699%
+Test Loss: 0.959511, Acc: 75.940000%
+Fine Tune Loss: 0.005198, Acc: 100.000000%
+Test Loss: 0.954614, Acc: 76.060000%
+Fine Tune Loss: 0.004961, Acc: 100.000000%
+Test Loss: 0.969947, Acc: 76.010000%
+Fine Tune Loss: 0.004542, Acc: 100.000000%
+Test Loss: 0.954902, Acc: 76.300000%
+Fine Tune Loss: 0.004968, Acc: 100.000000%
+Test Loss: 0.944589, Acc: 76.070000%
+Fine Tune Loss: 0.004616, Acc: 99.980699%
+Test Loss: 0.937438, Acc: 76.290000%
+Fine Tune Loss: 0.004463, Acc: 100.000000%
+Test Loss: 0.945318, Acc: 76.360000%
+Fine Tune Loss: 0.004752, Acc: 99.961397%
+Test Loss: 0.987132, Acc: 75.810000%
+Fine Tune Loss: 0.004270, Acc: 100.000000%
+Test Loss: 0.946209, Acc: 76.530000%
+Fine Tune Loss: 0.004328, Acc: 100.000000%
+Test Loss: 0.945892, Acc: 76.240000%
+Fine Tune Loss: 0.004386, Acc: 100.000000%
+Test Loss: 0.958994, Acc: 75.800000%
+Fine Tune Loss: 0.004245, Acc: 100.000000%
+Test Loss: 0.954626, Acc: 76.290000%
+Best Test Acc: 76.660000%

@@ -10,6 +10,7 @@ import torchvision.transforms as transforms
 from PIL import Image
 from torchvision.datasets import VisionDataset
 from torchvision.datasets.utils import check_integrity, download_and_extract_archive
+import cv2
 
 import utils
 
@@ -197,7 +198,7 @@ class CIFAR10(Data.Dataset):
                     self.random_seed,
                     self.num_classes)
             elif self.noise_type == 'instance':
-                train_set = CIFAR10_for_instance(root=f'./data/cifar10/{self.noise_type}_{self.noise_rate}', train=True,
+                train_set = CIFAR10_for_instance(root=f'./data/cifar10/base', train=True,
                                                  transform=transforms.ToTensor(), download=True)
                 self.train_image, self.train_label, self.val_image, self.val_label, self.clean_train_label, self.clean_val_label = utils.instance_dataset_split(
                     train_set,
@@ -205,7 +206,9 @@ class CIFAR10(Data.Dataset):
                     self.noise_rate,
                     split_per,
                     self.random_seed,
-                    self.num_class)
+                    self.num_classes)
+            else:
+                pass
             np.save(os.path.join(train_dir, 'train_images.npy'), self.train_image)
             np.save(os.path.join(train_dir, 'train_labels.npy'), self.train_label)
             np.save(os.path.join(train_dir, 'clean_train_labels.npy'), self.clean_train_label)
