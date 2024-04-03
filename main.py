@@ -29,20 +29,20 @@ target_transform = transforms.target_transform
 print('==> Preparing data..')
 # data loading
 train_data = dataloader.get_noisy_dataset(train=True, transform=transform, target_transform=target_transform, args=args,
-                                          exist=True)
+                                          exist=args.exist)
 val_data = dataloader.get_noisy_dataset(train=False, transform=transform, target_transform=target_transform, args=args,
-                                        exist=True)
+                                        exist=args.exist)
 processed_train_data = dataloader.get_processed_dataset(train=True, transform=transform,
-                                                        target_transform=target_transform, args=args, exist=True)
+                                                        target_transform=target_transform, args=args, exist=args.exist)
 processed_val_data = dataloader.get_processed_dataset(train=False, transform=transform,
-                                                      target_transform=target_transform, args=args, exist=True)
+                                                      target_transform=target_transform, args=args, exist=args.exist)
 
 # data loader
 train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers,
                           drop_last=False)
 val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
                         drop_last=False)
-test_loader = dataloader.get_test_loader(transform, target_transform, args, exist=True)
+test_loader = dataloader.get_test_loader(transform, target_transform, args, exist=args.exist)
 
 # set up model
 model = models.get_model(args).to(args.device)
@@ -70,7 +70,10 @@ elif args.noise_type == 'instance':
     distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
                             processed_val_data, distilled_dataset_dir)
 elif args.noise_type == 'pairflip':
-    pass
+    # clip
+    train_clean_indices, val_clean_indices = filtering(args)
+    distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
+                         processed_val_data, distilled_dataset_dir)
 
 train_data = dataloader.get_distilled_dataset(train=True, transform=transform, target_transform=target_transform,
                                               dir=distilled_dataset_dir, args=args)

@@ -16,7 +16,7 @@ def transform(args):
     elif args.dataset == 'cifar100':
         args.num_classes = 100
         args.model = 'resnet34'
-        transform_train = transforms.Compose([
+        transform = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),

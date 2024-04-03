@@ -25,16 +25,16 @@ target_transform = transforms.target_transform
 print('==> Preparing data..')
 # data loading
 train_data = dataloader.get_noisy_dataset(train=True, transform=transform, target_transform=target_transform, args=args,
-                                          exist=True)
+                                          exist=args.exist)
 val_data = dataloader.get_noisy_dataset(train=False, transform=transform, target_transform=target_transform, args=args,
-                                        exist=True)
+                                        exist=args.exist)
 
 # data loader
 train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers,
                           drop_last=False)
 val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
                         drop_last=False)
-test_loader = dataloader.get_test_loader(transform, target_transform, args, exist=True)
+test_loader = dataloader.get_test_loader(transform, target_transform, args, exist=args.exist)
 
 # set up model
 model = models.get_model(args).to(args.device)

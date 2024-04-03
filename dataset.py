@@ -157,6 +157,30 @@ class CIFAR10_for_instance(VisionDataset):
         return "Split: {}".format("Train" if self.train is True else "Test")
 
 
+class CIFAR100_for_instance(CIFAR10_for_instance):
+    """`CIFAR100 <https://www.cs.toronto.edu/~kriz/cifar.html>`_ Dataset.
+
+    This is a subclass of the `CIFAR10` Dataset.
+    """
+
+    base_folder = "cifar-100-python"
+    url = "https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz"
+    filename = "cifar-100-python.tar.gz"
+    tgz_md5 = "eb9058c3a382ffc7106e4002c42a8d85"
+    train_list = [
+        ["train", "16019d7e3df5f24257cddd939b257f8d"],
+    ]
+
+    test_list = [
+        ["test", "f0ef6b0ae62326f3e7ffdfab6717acfc"],
+    ]
+    meta = {
+        "filename": "meta",
+        "key": "fine_label_names",
+        "md5": "7973b15100ade9c7d40fb424638fde48",
+    }
+
+
 class CIFAR10(Data.Dataset):
     def __init__(self, args, train=True, transform=None, target_transform=None, split_per=0.9, exist=False):
         self.transform = transform
@@ -206,10 +230,100 @@ class CIFAR10(Data.Dataset):
                     self.noise_rate,
                     split_per,
                     self.random_seed,
-                    self.num_classes)
+                    args)
             else:
                 train_set = datasets.CIFAR10(root='./data/cifar10/base', train=True, download=True,
                                              transform=transforms.ToTensor())
+                train_image = train_set.data
+                train_label = np.array(train_set.targets)
+                self.train_image, self.train_label, self.val_image, self.val_label, self.clean_train_label, self.clean_val_label = utils.pairflip_dataset_split(
+                    train_image,
+                    train_label,
+                    self.noise_rate,
+                    split_per,
+                    self.random_seed,
+                    self.num_classes)
+
+            np.save(os.path.join(train_dir, 'train_images.npy'), self.train_image)
+            np.save(os.path.join(train_dir, 'train_labels.npy'), self.train_label)
+            np.save(os.path.join(train_dir, 'clean_train_labels.npy'), self.clean_train_label)
+            np.save(os.path.join(val_dir, 'val_images.npy'), self.val_image)
+            np.save(os.path.join(val_dir, 'val_labels.npy'), self.val_label)
+            np.save(os.path.join(val_dir, 'clean_val_labels.npy'), self.clean_val_label)
+
+    def __getitem__(self, index):
+        if self.train:
+            img, label = self.train_image[index], self.train_label[index]
+        else:
+            img, label = self.val_image[index], self.val_label[index]
+
+        img = Image.fromarray(img.astype('uint8'))
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        if self.target_transform is not None:
+            label = self.target_transform(label)
+
+        return img, label, index
+
+    def __len__(self):
+        return len(self.train_image) if self.train else len(self.val_image)
+
+
+class CIFAR100(Data.Dataset):
+    def __init__(self, args, train=True, transform=None, target_transform=None, split_per=0.9, exist=False):
+        self.transform = transform
+        self.target_transform = target_transform
+        self.noise_rate = args.noise_rate
+        self.random_seed = args.seed
+        self.noise_type = args.noise_type
+        self.num_classes = args.num_classes
+        self.exist = exist
+        self.train = train
+
+        train_dir = f'./data/cifar100/{self.noise_type}_{self.noise_rate}/train'
+        val_dir = f'./data/cifar100/{self.noise_type}_{self.noise_rate}/val'
+        os.makedirs(train_dir, exist_ok=True)
+        os.makedirs(val_dir, exist_ok=True)
+
+        # check existence of the dataset
+        if self.exist:
+            if self.train:
+                self.train_image = np.load(os.path.join(train_dir, 'train_images.npy'))
+                self.train_label = np.load(os.path.join(train_dir, 'train_labels.npy'))
+                self.clean_train_label = np.load(os.path.join(train_dir, 'clean_train_labels.npy'))
+            else:
+                self.val_image = np.load(os.path.join(val_dir, 'val_images.npy'))
+                self.val_label = np.load(os.path.join(val_dir, 'val_labels.npy'))
+                self.clean_val_label = np.load(os.path.join(val_dir, 'clean_val_labels.npy'))
+        else:
+            # split train dataset
+            if self.noise_type == 'symmetric':
+                train_set = datasets.CIFAR100(root='./data/cifar100/base', train=True, download=True,
+                                              transform=transforms.ToTensor())
+                train_image = train_set.data
+                train_label = np.array(train_set.targets)
+                self.train_image, self.train_label, self.val_image, self.val_label, self.clean_train_label, self.clean_val_label = utils.symmetric_dataset_split(
+                    train_image,
+                    train_label,
+                    self.noise_rate,
+                    split_per,
+                    self.random_seed,
+                    self.num_classes)
+            elif self.noise_type == 'instance':
+                train_set = CIFAR100_for_instance(root=f'./data/cifar100/base', train=True,
+                                                  transform=transforms.ToTensor(), download=True)
+                self.train_image, self.train_label, self.val_image, self.val_label, self.clean_train_label, self.clean_val_label = utils.instance_dataset_split(
+                    train_set,
+                    train_set.targets,
+                    self.noise_rate,
+                    split_per,
+                    self.random_seed,
+                    args)
+            else:
+                train_set = datasets.CIFAR100(root='./data/cifar100/base', train=True, download=True,
+                                              transform=transforms.ToTensor())
                 train_image = train_set.data
                 train_label = np.array(train_set.targets)
                 self.train_image, self.train_label, self.val_image, self.val_label, self.clean_train_label, self.clean_val_label = utils.pairflip_dataset_split(
@@ -272,8 +386,8 @@ class processed_dataset(Data.Dataset):
                 self.val_image = self.resize_images(self.val_image)
                 self.val_label = np.load(os.path.join(val_dir, 'val_labels.npy'))
         else:
-            # TODO
-            pass
+            # raise NotProcessedDatasetError
+            raise Exception('NotProcessedDatasetError')
 
     def __getitem__(self, index):
         if self.train:
@@ -341,54 +455,6 @@ class distilled_dataset(Data.Dataset):
         return len(self.train_image) if self.train else len(self.val_image)
 
 
-class source_CIFAR10(Data.Dataset):
-    def __init__(self, transform=None, target_transform=None):
-        self.transform = transform
-        self.target_transform = target_transform
-
-        dataset_dir = './data/cifar10/source_target_dataset'
-        self.source_image = np.load(os.path.join(dataset_dir, 'source_images.npy'))
-        self.source_label = np.load(os.path.join(dataset_dir, 'source_labels.npy'))
-        self.classes = np.load(os.path.join(dataset_dir, 'classes.npy'))
-
-    def __getitem__(self, index):
-        img, label, cls = self.source_image[index], self.source_label[index], self.classes[index]
-
-        img = Image.fromarray(img.astype('uint8'))
-
-        if self.transform is not None:
-            img = self.transform(img)
-
-        if self.target_transform is not None:
-            label = self.target_transform(label)
-
-        return img, label, cls, index
-
-    def __len__(self):
-        return len(self.source_image)
-
-
-class target_CIFAR10(Data.Dataset):
-    def __init__(self, transform=None):
-        self.transform = transform
-
-        dataset_dir = './data/cifar10/source_target_dataset'
-        self.target_image = np.load(os.path.join(dataset_dir, 'target_images.npy'))
-
-    def __getitem__(self, index):
-        img = self.target_image[index]
-
-        img = Image.fromarray(img.astype('uint8'))
-
-        if self.transform is not None:
-            img = self.transform(img)
-
-        return img
-
-    def __len__(self):
-        return len(self.target_image)
-
-
 class CIFAR10_test(Data.Dataset):
     def __init__(self, transform=None, target_transform=None, exist=False):
         self.transform = transform
@@ -398,11 +464,52 @@ class CIFAR10_test(Data.Dataset):
         self.exist = exist
 
         dir = './data/cifar10/test'
+        os.makedirs(dir, exist_ok=True)
         if self.exist:
             self.test_image = np.load(os.path.join(dir, 'test_images.npy'))
             self.test_label = np.load(os.path.join(dir, 'test_labels.npy'))
         else:
             test_set = datasets.CIFAR10(root='./data/cifar10/base', train=False, download=True,
+                                        transform=self.test_transform)
+
+            test_image = test_set.data
+            test_label = np.array(test_set.targets)
+
+            np.save(os.path.join(dir, 'test_images.npy'), test_image)
+            np.save(os.path.join(dir, 'test_labels.npy'), test_label)
+
+    def __getitem__(self, index):
+        img, label = self.test_image[index], self.test_label[index]
+
+        img = Image.fromarray(img.astype('uint8'))
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        if self.target_transform is not None:
+            label = self.target_transform(label)
+
+        return img, label
+
+    def __len__(self):
+        return len(self.test_image)
+
+
+class CIFAR100_test(Data.Dataset):
+    def __init__(self, transform=None, target_transform=None, exist=False):
+        self.transform = transform
+        self.target_transform = target_transform
+        self.test_transform = transforms.Compose(
+            [transforms.ToTensor(), transforms.Normalize((0.507, 0.487, 0.441), (0.267, 0.256, 0.276))])
+        self.exist = exist
+
+        dir = './data/cifar100/test'
+        os.makedirs(dir, exist_ok=True)
+        if self.exist:
+            self.test_image = np.load(os.path.join(dir, 'test_images.npy'))
+            self.test_label = np.load(os.path.join(dir, 'test_labels.npy'))
+        else:
+            test_set = datasets.CIFAR100(root='./data/cifar100/base', train=False, download=True,
                                         transform=self.test_transform)
 
             test_image = test_set.data

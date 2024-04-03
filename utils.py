@@ -28,18 +28,23 @@ def multiclass_noisify(train_labels, P, random_state=1):
     return new_labels
 
 
-def v6_get_noisy_label(n, dataset, labels):
-    label_num = 10
+def v6_get_noisy_label(n, dataset, labels, args=None):
+    if args.dataset == 'cifar10':
+        label_num = 10
+    elif args.dataset == 'cifar100':
+        label_num = 100
     norm_std = 0.1
-    os.makedirs('./data/cifar10/instance_noise_0.5', exist_ok=True)
-    file_path = './data/cifar10/instance_noise_0.5/v6_cifar10_labels_0.5_1.npy'
-    print(file_path)
+    os.makedirs(f'./data/{args.dataset}/{args.noise_type}_{args.noise_rate}', exist_ok=True)
+    file_path = f'./data/{args.dataset}/{args.noise_type}_{args.noise_rate}/v6_{args.dataset}_labels_{args.noise_rate}.npy'
     if os.path.exists(file_path):
         new_label = np.load(file_path)
     else:
         from math import inf
         P = []
-        feature_size = 3 * 32 * 32
+        if args.dataset == 'mnist':
+            feature_size = 28 * 28
+        else:
+            feature_size = 3 * 32 * 32
 
         flip_distribution = stats.truncnorm((0 - n) / norm_std, (1 - n) / norm_std, loc=n,
                                             scale=norm_std)
@@ -182,8 +187,8 @@ def pairflip_dataset_split(train_images, train_labels, noise_rate=0.5, split_per
     return train_set, train_labels, val_set, val_labels, clean_train_labels, clean_val_labels
 
 
-def instance_dataset_split(train_data, train_labels, noise_rate=0.5, split_per=0.9, random_seed=1, num_classes=10):
-    noise_labels = v6_get_noisy_label(noise_rate, train_data, train_labels)
+def instance_dataset_split(train_data, train_labels, noise_rate=0.5, split_per=0.9, random_seed=1, args=None):
+    noise_labels = v6_get_noisy_label(noise_rate, train_data, train_labels, args)
     train_images = train_data.data
     clean_labels = np.array(train_labels)
     num_samples = int(noise_labels.shape[0])
