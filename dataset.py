@@ -208,7 +208,18 @@ class CIFAR10(Data.Dataset):
                     self.random_seed,
                     self.num_classes)
             else:
-                pass
+                train_set = datasets.CIFAR10(root='./data/cifar10/base', train=True, download=True,
+                                             transform=transforms.ToTensor())
+                train_image = train_set.data
+                train_label = np.array(train_set.targets)
+                self.train_image, self.train_label, self.val_image, self.val_label, self.clean_train_label, self.clean_val_label = utils.pairflip_dataset_split(
+                    train_image,
+                    train_label,
+                    self.noise_rate,
+                    split_per,
+                    self.random_seed,
+                    self.num_classes)
+
             np.save(os.path.join(train_dir, 'train_images.npy'), self.train_image)
             np.save(os.path.join(train_dir, 'train_labels.npy'), self.train_label)
             np.save(os.path.join(train_dir, 'clean_train_labels.npy'), self.clean_train_label)

@@ -120,11 +120,52 @@ def noisify_multiclass_symmetric(train_labels, noise_rate, random_state=None, nb
     return train_labels
 
 
+def noisify_pairflip(train_labels, noise_rate, random_state, nb_classes):
+    P = np.eye(nb_classes)
+    n = noise_rate
+
+    if n > 0.0:
+        P[0, 0], P[0, 1] = 1. - n, n
+        for i in range(1, nb_classes - 1):
+            P[i, i], P[i, i + 1] = 1. - n, n
+        P[nb_classes - 1, nb_classes - 1], P[nb_classes - 1, 0] = 1. - n, n
+
+        y_train_noisy = multiclass_noisify(train_labels, P=P,
+                                           random_state=random_state)
+        actual_noise = (y_train_noisy != train_labels).mean()
+        assert actual_noise > 0.0
+        y_train = y_train_noisy
+
+    return y_train, actual_noise, P
+
+
 def symmetric_dataset_split(train_images, train_labels, noise_rate=0.5, split_per=0.9, random_seed=1, num_classes=10):
     train_labels = train_labels[:, np.newaxis]
 
     noisy_label = noisify_multiclass_symmetric(train_labels, noise_rate, random_state=random_seed,
                                                nb_classes=num_classes)
+
+    noisy_label = noisy_label.squeeze()
+    clean_labels = train_labels.squeeze()
+    num_samples = int(noisy_label.shape[0])
+    np.random.seed(random_seed)
+    train_set_index = np.random.choice(num_samples, int(num_samples * split_per), replace=False)
+    index = np.arange(train_images.shape[0])
+    val_set_index = np.delete(index, train_set_index)
+
+    train_set, val_set = train_images[train_set_index, :], train_images[val_set_index, :]
+    train_labels, val_labels = noisy_label[train_set_index], noisy_label[val_set_index]
+    clean_train_labels, clean_val_labels = clean_labels[train_set_index], clean_labels[val_set_index]
+
+    return train_set, train_labels, val_set, val_labels, clean_train_labels, clean_val_labels
+
+
+def pairflip_dataset_split(train_images, train_labels, noise_rate=0.5, split_per=0.9, random_seed=1, num_classes=10):
+    train_labels = train_labels[:, np.newaxis]
+
+    noisy_label, real_noise_rate, transition_matrix = noisify_pairflip(train_labels, noise_rate,
+                                                                       random_state=random_seed,
+                                                                       nb_classes=num_classes)
 
     noisy_label = noisy_label.squeeze()
     clean_labels = train_labels.squeeze()
@@ -283,7 +324,7 @@ def distill_dataset_small_loss(train_clean_indices, val_clean_indices, train_dat
 
 
 def distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val_data, train_processed_data,
-                               val_processed_data, dataset_dir):
+                         val_processed_data, dataset_dir):
     print('==> Filtering dataset..')
 
     train_distilled_examples_index, train_distilled_processed_examples_index = [], []
@@ -332,7 +373,7 @@ def distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val
     classes = np.concatenate(
         (np.zeros(len(train_distilled_examples_index)), np.ones(len(train_distilled_processed_examples_index))), axis=0)
     distilled_labels = np.concatenate((train_distilled_examples_labels, train_distilled_processed_examples_labels),
-                                        axis=0)
+                                      axis=0)
 
     print(f'Number of distilled train examples: {len(train_distilled_examples_index)}')
     print(
