@@ -472,11 +472,11 @@ class CIFAR10_test(Data.Dataset):
             test_set = datasets.CIFAR10(root='./data/cifar10/base', train=False, download=True,
                                         transform=self.test_transform)
 
-            test_image = test_set.data
-            test_label = np.array(test_set.targets)
+            self.test_image = test_set.data
+            self.test_label = np.array(test_set.targets)
 
-            np.save(os.path.join(dir, 'test_images.npy'), test_image)
-            np.save(os.path.join(dir, 'test_labels.npy'), test_label)
+            np.save(os.path.join(dir, 'test_images.npy'), self.test_image)
+            np.save(os.path.join(dir, 'test_labels.npy'), self.test_label)
 
     def __getitem__(self, index):
         img, label = self.test_image[index], self.test_label[index]
@@ -512,11 +512,11 @@ class CIFAR100_test(Data.Dataset):
             test_set = datasets.CIFAR100(root='./data/cifar100/base', train=False, download=True,
                                         transform=self.test_transform)
 
-            test_image = test_set.data
-            test_label = np.array(test_set.targets)
+            self.test_image = test_set.data
+            self.test_label = np.array(test_set.targets)
 
-            np.save(os.path.join(dir, 'test_images.npy'), test_image)
-            np.save(os.path.join(dir, 'test_labels.npy'), test_label)
+            np.save(os.path.join(dir, 'test_images.npy'), self.test_image)
+            np.save(os.path.join(dir, 'test_labels.npy'), self.test_label)
 
     def __getitem__(self, index):
         img, label = self.test_image[index], self.test_label[index]

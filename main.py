@@ -60,7 +60,9 @@ os.makedirs(model_save_dir, exist_ok=True)
 print('==> Distilled dataset building..')
 distilled_dataset_dir = os.path.join('./data', args.dataset, f'{args.noise_type}_{args.noise_rate}')
 
-if args.noise_type == 'symmetric':
+if os.path.exists(os.path.join(distilled_dataset_dir, 'train', 'distilled_train_images.npy')):
+    print('==> Distilled dataset exists..')
+elif args.noise_type == 'symmetric':
     train_clean_indices, val_clean_indices = filter(model, train_loader, val_loader, train_data, val_data, optimizer,
                                                     loss_func, args)
     distill_dataset_small_loss(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
