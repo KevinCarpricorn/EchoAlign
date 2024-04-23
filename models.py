@@ -30,6 +30,34 @@ class BasicBlock(nn.Module):
         return out
 
 
+class Bottleneck(nn.Module):
+    expansion = 4
+
+    def __init__(self, in_planes, planes, stride=1):
+        super(Bottleneck, self).__init__()
+        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(planes)
+        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(planes)
+        self.conv3 = nn.Conv2d(planes, self.expansion * planes, kernel_size=1, bias=False)
+        self.bn3 = nn.BatchNorm2d(self.expansion * planes)
+
+        self.shortcut = nn.Sequential()
+        if stride != 1 or in_planes != self.expansion * planes:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_planes, self.expansion * planes, kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(self.expansion * planes)
+            )
+
+    def forward(self, x):
+        out = F.relu(self.bn1(self.conv1(x)))
+        out = F.relu(self.bn2(self.conv2(out)))
+        out = self.bn3(self.conv3(out))
+        out += self.shortcut(x)
+        out = F.relu(out)
+        return out
+
+
 class ResNet(nn.Module):
     def __init__(self, block, num_blocks, num_classes):
         super(ResNet, self).__init__()
@@ -103,12 +131,18 @@ def ResNet34(num_classes):
     return ResNet(BasicBlock, [3, 4, 6, 3], num_classes)
 
 
+def ResNet50(num_classes):
+    return ResNet(Bottleneck, [3, 4, 6, 3], num_classes)
+
+
 def get_model(args):
     if args.model == 'resnet18':
         model = ResNet18(args.num_classes)
     elif args.model == 'resnet34':
         model = ResNet34(args.num_classes)
     elif args.model == 'resnet50':
+        model = ResNet50(args.num_classes)
+    elif args.model == 'resnet50_p':
         model = torchvision.models.resnet50(pretrained=True)
         model.fc = nn.Linear(2048, args.num_classes)
 
