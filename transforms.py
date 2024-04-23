@@ -24,7 +24,7 @@ def transform(args):
         ])
     elif args.dataset == 'clothing1m':
         args.num_classes = 14
-        args.model = 'resnet50'
+        args.model = 'resnet50_p'
         transform = transforms.Compose([
             transforms.Resize((256, 256)),
             transforms.RandomCrop(224),
