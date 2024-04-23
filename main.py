@@ -10,9 +10,9 @@ import logs.logger as logger
 import models
 import transforms
 from args_parser import parse_args
+from clip_filter import filtering
 from evaluator import evaluate, test
 from small_loss_trick import filter
-from clip_filter import filtering
 from trainer import train, fine_tune
 from utils import *
 
@@ -77,6 +77,8 @@ elif args.noise_type == 'pairflip':
     distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
                          processed_val_data, distilled_dataset_dir)
 
+cls = np.load(os.path.join(distilled_dataset_dir, 'train', 'classes.npy'))
+cls = int(cls.sum())
 train_data = dataloader.get_distilled_dataset(train=True, transform=transform, target_transform=target_transform,
                                               dir=distilled_dataset_dir, args=args)
 val_data = dataloader.get_distilled_dataset(train=False, transform=transform, target_transform=target_transform,
@@ -101,8 +103,8 @@ print('==> Start training..')
 
 def main():
     best_val_acc = 0.
-    source_weight = len(train_clean_indices) / len(train_data)
-    target_weight = (len(train_data) - len(train_clean_indices)) / len(train_data)
+    source_weight = (len(train_data) - cls)/len(train_data)
+    target_weight = cls/len(train_data)
     print('source_weight: {:.6f}, target_weight: {:.6f}'.format(source_weight, target_weight))
     best_acc = 0.
     for epoch in tqdm(range(args.n_epoch)):
