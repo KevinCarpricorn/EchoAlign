@@ -36,3 +36,16 @@ def log(main_func, log_filename="output.log"):
                 break
             else:
                 print("Invalid input. Please enter 'yes' or 'no'.")
+
+
+def save_log(main_func, log_filename="output.log"):
+    original_stdout = sys.stdout
+    sys.stdout = Logger(log_filename)
+
+    try:
+        main_func()
+    except Exception as e:
+        print(f"Experiment interrupted due to an exception: {e}")
+    finally:
+        sys.stdout.log.close()
+        sys.stdout = original_stdout
