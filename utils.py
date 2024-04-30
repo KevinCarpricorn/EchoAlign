@@ -1,4 +1,6 @@
 import os
+import shutil
+import tarfile
 
 import numpy as np
 import torch
@@ -403,200 +405,26 @@ def distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val
     np.save(os.path.join(dataset_dir, 'val', f'distilled_val_labels.npy'), distilled_labels)
 
 
-def source_target_dataset(model, data_loader, data, processed_data, threshold, args, dataset_dir):
-    print('==> building source and target dataset..')
-    model.eval()
+def distill_dataset_Clothing1M(train_clean_indices, train_data):
+    print('==> Filtering dataset..')
 
-    distilled_examples_index, distilled_processed_examples_index = [], []
-    distilled_examples_labels, distilled_processed_examples_labels = [], []
+    train_distilled_examples_index = train_clean_indices
 
-    for imgs, labels, indexes in data_loader:
-        imgs = imgs.to(args.device)
-        output, _ = model(imgs)
-        pred = torch.max(F.softmax(output, dim=1), 1)
-        mask = pred[0] > threshold
-        mask = mask.cpu()
-        distilled_examples_index.extend(indexes[mask])
-        distilled_examples_labels.extend(pred[1].cpu()[mask])
-        distilled_processed_examples_index.extend(indexes[~mask])
-        distilled_processed_examples_labels.extend(labels[~mask])
-    print('==> building source and target dataset done..')
+    distilled_imgs_path = os.path.join(os.getenv('PBS_JOBFS'), 'distilled_clean_images')
+    save_dir = '/scratch/yc49/yz4497/neurips/data/Clothing1M/base'
 
-    # Process and save distilled examples
-    distilled_examples_index = np.array(distilled_examples_index)
-    distilled_examples_labels = np.array(distilled_examples_labels)
-    distilled_processed_examples_index = np.array(distilled_processed_examples_index)
-    distilled_processed_examples_labels = np.array(distilled_processed_examples_labels)
+    for idx in train_distilled_examples_index:
+        img_path, label = train_data.samples[idx]
+        new_image_dir = os.path.join(distilled_imgs_path, str(label))
+        os.makedirs(new_image_dir, exist_ok=True)
 
-    target_examples_num = len(distilled_processed_examples_index) - len(distilled_examples_index)
-    traget_examples_index = np.random.choice(distilled_processed_examples_index, target_examples_num, replace=False)
+        new_file_path = os.path.join(new_image_dir, os.path.basename(img_path))
+        shutil.copy(img_path, new_file_path)
 
-    distilled_imgs = data.train_image[distilled_examples_index]
-    distilled_processed_imgs = processed_data.train_image[distilled_processed_examples_index]
-    target_imgs = data.train_image[traget_examples_index]
-    distilled_clean_labels = data.clean_train_label[distilled_examples_index]
-
-    distilled_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
-    distilled_labels = np.concatenate((distilled_examples_labels, distilled_processed_examples_labels), axis=0)
-    classes = np.concatenate(
-        (np.zeros(len(distilled_examples_index)), np.ones(len(distilled_processed_examples_index))), axis=0)
-
-    print(f'Number of distilled training examples: {len(distilled_examples_index)}')
-    print(
-        f'Accuracy of distilled training examples collection: {(np.array(distilled_examples_labels) == np.array(distilled_clean_labels)).sum() * 100 / len(distilled_examples_labels)}%')
-    print(f'Number of target domain examples: {len(traget_examples_index) + len(distilled_examples_index)}')
-
-    np.save(os.path.join(dataset_dir, f'source_images.npy'), distilled_imgs)
-    np.save(os.path.join(dataset_dir, f'source_labels.npy'), distilled_labels)
-    np.save(os.path.join(dataset_dir, f'target_images.npy'), target_imgs)
-    np.save(os.path.join(dataset_dir, f'classes.npy'), classes)
-
-
-def source_target_dataset_sl(train_clean_indices, val_clean_indices, train_data, val_data, train_processed_data,
-                             val_processed_data, dataset_dir):
-    print('==> building source and target dataset..')
-    train_distilled_examples_index, train_distilled_processed_examples_index = [], []
-    val_distilled_examples_index, val_distilled_processed_examples_index = [], []
-
-    train_distilled_examples_labels, train_distilled_processed_examples_labels = [], []
-    val_distilled_examples_labels, val_distilled_processed_examples_labels = [], []
-
-    for i in range(len(train_data.train_label)):
-        if i not in train_clean_indices:
-            train_distilled_processed_examples_index.append(i)
-            train_distilled_processed_examples_labels.append(train_data.train_label[i])
-        else:
-            train_distilled_examples_index.append(i)
-            train_distilled_examples_labels.append(train_data.train_label[i])
-
-    for i in range(len(val_data.val_label)):
-        if i not in val_clean_indices:
-            val_distilled_processed_examples_index.append(i)
-            val_distilled_processed_examples_labels.append(val_data.val_label[i])
-        else:
-            val_distilled_examples_index.append(i)
-            val_distilled_examples_labels.append(val_data.val_label[i])
-
-    # make them all numpy arrays
-    train_distilled_examples_index = np.array(train_distilled_examples_index)
-    train_distilled_examples_labels = np.array(train_distilled_examples_labels)
-    train_distilled_processed_examples_index = np.array(train_distilled_processed_examples_index)
-    train_distilled_processed_examples_labels = np.array(train_distilled_processed_examples_labels)
-    val_distilled_examples_index = np.array(val_distilled_examples_index)
-    val_distilled_examples_labels = np.array(val_distilled_examples_labels)
-    val_distilled_processed_examples_index = np.array(val_distilled_processed_examples_index)
-    val_distilled_processed_examples_labels = np.array(val_distilled_processed_examples_labels)
-
-    # train
-    distilled_imgs = train_data.train_image[train_distilled_examples_index]
-    distilled_processed_imgs = train_processed_data.train_image[train_distilled_processed_examples_index]
-    distilled_clean_labels = train_data.clean_train_label[train_distilled_examples_index]
-    distilled_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
-    distilled_labels = np.concatenate((train_distilled_examples_labels, train_distilled_processed_examples_labels),
-                                      axis=0)
+    with tarfile.open(os.path.join(save_dir, 'distilled_clean_images.tar'), 'w') as tar:
+        tar.add(distilled_imgs_path, arcname=os.path.basename(distilled_imgs_path))
 
     print(f'Number of distilled train examples: {len(train_distilled_examples_index)}')
-    print(
-        f'Accuracy of distilled train examples collection: {(train_distilled_examples_labels == distilled_clean_labels).sum() * 100 / len(train_distilled_examples_labels)}%')
-    np.save(os.path.join(dataset_dir, f'source_images.npy'), distilled_imgs)
-    np.save(os.path.join(dataset_dir, f'source_labels.npy'), distilled_labels)
-
-    # val
-    distilled_imgs = val_data.val_image[val_distilled_examples_index]
-    distilled_processed_imgs = val_processed_data.val_image[val_distilled_processed_examples_index]
-    distilled_clean_labels = val_data.clean_val_label[val_distilled_examples_index]
-    distilled_imgs = np.concatenate((distilled_imgs, distilled_processed_imgs), axis=0)
-    distilled_labels = np.concatenate((val_distilled_examples_labels, val_distilled_processed_examples_labels), axis=0)
-
-    print(f'Number of distilled validation examples: {len(val_distilled_examples_index)}')
-    print(
-        f'Accuracy of distilled validation examples collection: {(val_distilled_examples_labels == distilled_clean_labels).sum() * 100 / len(val_distilled_examples_labels)}%')
-    np.save(os.path.join(dataset_dir, f'distilled_val_images.npy'), distilled_imgs)
-    np.save(os.path.join(dataset_dir, f'distilled_val_labels.npy'), distilled_labels)
-
-    target_examples_num = len(train_distilled_processed_examples_index) - len(train_distilled_examples_index)
-    traget_examples_index = np.random.choice(train_distilled_processed_examples_index, target_examples_num,
-                                             replace=False)
-
-    target_imgs = train_data.train_image[traget_examples_index]
-    classes = np.concatenate(
-        (np.zeros(len(train_distilled_examples_index)), np.ones(len(train_distilled_processed_examples_index))), axis=0)
-
-    np.save(os.path.join(dataset_dir, f'target_images.npy'), target_imgs)
-    np.save(os.path.join(dataset_dir, f'classes.npy'), classes)
-
-
-def train_with_dann(model, source_loader, target_iter, optimizer, loss_func, domain_adv, args, scheduler):
-    model.train()
-    domain_adv.train()
-    train_loss = 0.
-    train_acc = 0.
-    domain_acc = 0.
-    for imgs, labels, classes, _ in source_loader:
-        source_num = int(classes.sum().item())
-        sorted_indices = torch.argsort(classes, descending=True)
-        imgs, labels = imgs[sorted_indices], labels[sorted_indices]
-        if source_num - (len(imgs) - source_num) > 0:
-            target_imgs = target_iter.get_data(source_num - (len(imgs) - source_num))
-            imgs, labels, target_imgs = imgs.to(args.device), labels.to(args.device), target_imgs.to(args.device)
-            input = torch.cat((imgs, target_imgs), dim=0)
-        else:
-            imgs, labels = imgs.to(args.device), labels.to(args.device)
-            input = imgs
-        output, features = model(input)
-        source_output = output[:len(imgs)]
-        source_features, target_features = features[:source_num], features[-source_num:]
-        cls_loss = loss_func(source_output, labels)
-        transfer_loss = domain_adv(source_features, target_features)
-        loss = cls_loss + transfer_loss * args.trade_off
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        train_loss += loss.item()
-        pred = torch.max(F.softmax(source_output, dim=1), 1)[1]
-        train_correct = (pred == labels).sum()
-        train_acc += train_correct.item()  # account
-        domain_acc += domain_adv.domain_discriminator_accuracy.item()  # %
-    scheduler.step()
-    return train_loss, train_acc, domain_acc
-
-
-def train_with_mdd(model, adv, source_loader, target_iter, optimizer, loss_func, mdd, args, scheduler):
-    model.train()
-    mdd.train()
-    adv.train()
-    train_loss = 0.
-    train_acc = 0.
-    for imgs, labels, classes, _ in source_loader:
-        source_num = int(classes.sum().item())
-        img_num = len(imgs)
-        sorted_indices = torch.argsort(classes, descending=True)
-        imgs, labels = imgs[sorted_indices], labels[sorted_indices]
-        if source_num - (img_num - source_num) > 0:
-            target_imgs = target_iter.get_data(source_num - (img_num - source_num))
-            imgs, labels, target_imgs = imgs.to(args.device), labels.to(args.device), target_imgs.to(args.device)
-            input = torch.cat((imgs, target_imgs), dim=0)
-        else:
-            imgs, labels = imgs.to(args.device), labels.to(args.device)
-            input = imgs
-        output, features = model(input)
-        outputs_adv = adv(features)
-        source_output = output[:img_num]
-        source_adv, target_adv = outputs_adv[:source_num], outputs_adv[-source_num:]
-        y_s, y_t = output[:source_num], output[-source_num:]
-        cls_loss = loss_func(source_output, labels)
-        transfer_loss = -mdd(y_s, source_adv, y_t, target_adv)
-        loss = cls_loss + transfer_loss * args.trade_off
-        optimizer.zero_grad()
-        adv.step()
-        loss.backward()
-        optimizer.step()
-        train_loss += loss.item()
-        pred = torch.max(F.softmax(source_output, dim=1), 1)[1]
-        train_correct = (pred == labels).sum()
-        train_acc += train_correct.item()
-    scheduler.step()
-    return train_loss, train_acc
 
 
 def set_up(args):

@@ -9,7 +9,10 @@ def evaluate(model, val_loader, loss_func, args):
     with torch.no_grad():
         for imgs, labels, _, _ in val_loader:
             imgs, labels = imgs.to(args.device), labels.to(args.device)
-            output, _ = model(imgs)
+            if args.model == 'resnet50_p':
+                output = model(imgs)
+            else:
+                output, _ = model(imgs)
             loss = loss_func(output, labels)
             loss = loss.mean()
             val_loss += loss.item()
@@ -26,7 +29,10 @@ def test(model, test_loader, loss_func, args):
     with torch.no_grad():
         for imgs, labels in test_loader:
             imgs, labels = imgs.to(args.device), labels.to(args.device)
-            output, _ = model(imgs)
+            if args.model == 'resnet50_p':
+                output = model(imgs)
+            else:
+                output, _ = model(imgs)
             loss = loss_func(output, labels)
             loss = loss.mean()
             test_loss += loss.item()

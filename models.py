@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
-import torchvision
+from torchvision.models import resnet50, ResNet50_Weights
 
 from tllib.modules.grl import WarmStartGradientReverseLayer
 
@@ -91,38 +91,6 @@ class ResNet(nn.Module):
         return out, feature
 
 
-class adversarial(nn.Module):
-    def __init__(self, in_feature, hidden_size, width, num_classes):
-        super(adversarial, self).__init__()
-        self.num_classes = num_classes
-        self.bottleneck = nn.Sequential(
-            nn.Linear(in_feature, hidden_size),
-            nn.BatchNorm1d(hidden_size),
-            nn.ReLU(),
-        )
-        self.bottleneck[1].weight.data.normal_(0, 0.005)
-        self.bottleneck[1].bias.data.fill_(0.1)
-        self.head = nn.Sequential(
-            nn.Linear(hidden_size, width),
-            nn.ReLU(),
-            nn.Linear(width, num_classes)
-        )
-        for dep in range(2):
-            self.head[dep * 2].weight.data.normal_(0, 0.01)
-            self.head[dep * 2].bias.data.fill_(0.0)
-        self.grl = WarmStartGradientReverseLayer(alpha=1.0, lo=0.0, hi=0.1, max_iters=1000,
-                                                 auto_step=False)
-
-    def forward(self, x):
-        features = self.grl(x)
-        features = self.bottleneck(features)
-        outputs_adv = self.head(features)
-        return outputs_adv
-
-    def step(self):
-        self.grl.step()
-
-
 def ResNet18(num_classes):
     return ResNet(BasicBlock, [2, 2, 2, 2], num_classes)
 
@@ -143,7 +111,7 @@ def get_model(args):
     elif args.model == 'resnet50':
         model = ResNet50(args.num_classes)
     elif args.model == 'resnet50_p':
-        model = torchvision.models.resnet50(pretrained=True)
+        model = resnet50(weights=ResNet50_Weights.DEFAULT)
         model.fc = nn.Linear(2048, args.num_classes)
 
     return model

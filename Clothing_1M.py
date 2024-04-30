@@ -1,3 +1,6 @@
+import os.path
+import tarfile
+
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import MultiStepLR
@@ -10,9 +13,8 @@ import logs.logger as logger
 import models
 import transforms
 from args_parser import parse_args
-from clip_filter import filtering
+from clip_filter import filter_clothing1m
 from evaluator import evaluate, test
-from small_loss_trick import filter
 from trainer import train, fine_tune
 from utils import *
 
@@ -20,7 +22,8 @@ args = parse_args()
 # set up environment
 set_up(args)
 
-print(f'==> Dataset: {args.dataset}, Noise Type: {args.noise_type}, Noise Rate: {args.noise_rate}, Batch Size: {args.batch_size}, Seed: {args.seed}')
+print(
+    f'==> Dataset: {args.dataset}, Batch Size: {args.batch_size}, Seed: {args.seed}')
 
 # preparing dataset
 transform = transforms.transform(args)
@@ -28,14 +31,21 @@ target_transform = transforms.target_transform
 
 print('==> Preparing data..')
 # data loading
+job_path = os.getenv('PBS_JOBFS')
+data_path = ['noisy.tar', 'clean_val.tar', 'clean_test.tar']
+data_dir = '/scratch/yc49/yz4497/neurips/data/Clothing1M/base/images'
+for tar_file in data_path:
+    tar_file = os.path.join(data_dir, tar_file)
+    with tarfile.open(tar_file, 'r') as tar:
+        tar.extractall(path=job_path)
+tar_file = '/scratch/yc49/yz4497/neurips/data/Clothing1M/base/processed_images/processed_noisy.tar'
+with tarfile.open(tar_file, 'r') as tar:
+    tar.extractall(path=job_path)
+
 train_data = dataloader.get_noisy_dataset(train=True, transform=transform, target_transform=target_transform, args=args,
                                           exist=args.exist)
 val_data = dataloader.get_noisy_dataset(train=False, transform=transform, target_transform=target_transform, args=args,
                                         exist=args.exist)
-processed_train_data = dataloader.get_processed_dataset(train=True, transform=transform,
-                                                        target_transform=target_transform, args=args, exist=args.exist)
-processed_val_data = dataloader.get_processed_dataset(train=False, transform=transform,
-                                                      target_transform=target_transform, args=args, exist=args.exist)
 
 # data loader
 train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers,
@@ -52,47 +62,34 @@ optimizer = optim.SGD(model.parameters(), lr=args.lr, weight_decay=args.weight_d
 loss_func = nn.CrossEntropyLoss(reduction='none').to(args.device)
 
 # model saving directory
-model_save_dir = os.path.join(args.model_dir, args.dataset, f'{args.noise_type}_{args.noise_rate}')
+model_save_dir = os.path.join(args.model_dir, args.dataset)
 model_file = f'{args.model}_best_model.pth'
 os.makedirs(model_save_dir, exist_ok=True)
 
 # distillation
 print('==> Distilled dataset building..')
-distilled_dataset_dir = os.path.join('./data', args.dataset, f'{args.noise_type}_{args.noise_rate}')
+distilled_dataset_dir = os.path.join('./data', args.dataset, 'base')
 
-if os.path.exists(os.path.join(distilled_dataset_dir, 'train', 'distilled_train_images.npy')):
+if os.path.exists(os.path.join(distilled_dataset_dir, 'distilled_clean_images.tar')):
     print('==> Distilled dataset exists..')
-elif args.noise_type == 'symmetric':
-    train_clean_indices, val_clean_indices = filter(model, train_loader, val_loader, train_data, val_data, optimizer,
-                                                    loss_func, args)
-    distill_dataset_small_loss(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
-                               processed_val_data, distilled_dataset_dir)
-elif args.noise_type == 'instance':
-    train_clean_indices, val_clean_indices = filtering(args)
-    distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
-                            processed_val_data, distilled_dataset_dir)
-elif args.noise_type == 'pairflip':
-    # clip
-    train_clean_indices, val_clean_indices = filtering(args)
-    distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
-                         processed_val_data, distilled_dataset_dir)
+else:
+    train_clean_indices = filter_clothing1m(args)
+    distill_dataset_Clothing1M(train_clean_indices, train_data)
 
-cls = np.load(os.path.join(distilled_dataset_dir, 'train', 'classes.npy'))
-cls = int(cls.sum())
 train_data = dataloader.get_distilled_dataset(train=True, transform=transform, target_transform=target_transform,
                                               dir=distilled_dataset_dir, args=args)
 val_data = dataloader.get_distilled_dataset(train=False, transform=transform, target_transform=target_transform,
                                             dir=distilled_dataset_dir, args=args)
 train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers,
-                          drop_last=False)
+                          drop_last=False, pin_memory=True)
 val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
-                        drop_last=False)
+                        drop_last=False, pin_memory=True)
 # renew model
 model = models.get_model(args).to(args.device)
+model = nn.DataParallel(model)
 optimizer = optim.SGD(model.parameters(), lr=args.lr, weight_decay=args.weight_decay, momentum=0.9)
-scheduler = MultiStepLR(optimizer, milestones=[100, 150], gamma=0.1)
-fine_tune_data = dataset.filtered_dataset(train=True, transform=transform, target_transform=target_transform,
-                                          dir=distilled_dataset_dir)
+scheduler = MultiStepLR(optimizer, milestones=[30, 40], gamma=0.1)
+fine_tune_data = dataset.filtered_dataset_Clothing1M(train=True, transform=transform, target_transform=target_transform)
 fine_tune_loader = DataLoader(fine_tune_data, batch_size=args.batch_size, shuffle=True,
                               num_workers=args.num_workers,
                               drop_last=False)
@@ -103,8 +100,8 @@ print('==> Start training..')
 
 def main():
     best_val_acc = 0.
-    source_weight = (len(train_data) - cls)/len(train_data)
-    target_weight = cls/len(train_data)
+    source_weight = 1000000 / len(train_data)
+    target_weight = (len(train_data) - 1000000) / len(train_data)
     print('source_weight: {:.6f}, target_weight: {:.6f}'.format(source_weight, target_weight))
     best_acc = 0.
     for epoch in tqdm(range(args.n_epoch)):
@@ -131,6 +128,11 @@ def main():
         print('Test Loss: {:.6f}, Acc: {:.6f}%'.format(test_loss / (len(test_loader.dataset)) * args.batch_size,
                                                        test_acc * 100 / (len(test_loader.dataset))))
     print('Best Test Acc: {:.6f}%'.format(best_acc * 100 / (len(test_loader.dataset))))
+
+    # model.load_state_dict(torch.load(model_save_dir + '/' + model_file))
+    # test_loss, test_acc = test(model, test_loader, loss_func, args)
+    # print('Test Loss: {:.6f}, Acc: {:.6f}%'.format(test_loss / (len(test_loader.dataset)) * args.batch_size,
+    #                                                test_acc * 100 / (len(test_loader.dataset))))
 
     # fine tune
     best_acc = fine_tune(model, fine_tune_loader, test_loader, optimizer, loss_func, args)

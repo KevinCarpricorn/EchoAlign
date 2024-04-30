@@ -1,6 +1,7 @@
 import os
 import pickle
 import sys
+import tarfile
 
 import numpy as np
 import torch
@@ -8,9 +9,8 @@ import torch.utils.data as Data
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 from PIL import Image
-from torchvision.datasets import VisionDataset
+from torchvision.datasets import VisionDataset, ImageFolder
 from torchvision.datasets.utils import check_integrity, download_and_extract_archive
-import cv2
 
 import utils
 
@@ -361,6 +361,50 @@ class CIFAR100(Data.Dataset):
         return len(self.train_image) if self.train else len(self.val_image)
 
 
+class Clothing1M_Dataset(ImageFolder):
+    def __init__(self, train=True, transform=None, target_transform=None):
+        data_dir = os.getenv('PBS_JOBFS')
+        self.train = train
+        if transform is None:
+            self.transform = transforms.ToTensor()
+        else:
+            self.transform = transform
+
+        self.target_transform = target_transform
+
+        if self.train:
+            data_path = os.path.join(data_dir, 'noisy')
+            super().__init__(data_path, transform=self.transform, target_transform=self.target_transform)
+        else:
+            data_path = os.path.join(data_dir, 'clean_val')
+            super().__init__(data_path, transform=self.transform, target_transform=self.target_transform)
+
+    def __getitem__(self, index):
+        image, label = super(Clothing1M_Dataset, self).__getitem__(index)
+
+        return image, label, index
+
+
+class Clothing1M_processed(ImageFolder):
+    def __init__(self, transform=None, target_transform=None):
+        data_dir = os.getenv('PBS_JOBFS')
+
+        if transform is None:
+            self.transform = transforms.ToTensor()
+        else:
+            self.transform = transform
+
+        self.target_transform = target_transform
+
+        data_path = os.path.join(data_dir, 'processed_noisy')
+        super().__init__(data_path, transform=self.transform, target_transform=self.target_transform)
+
+    def __getitem__(self, index):
+        image, label = super(Clothing1M_processed, self).__getitem__(index)
+
+        return image, label, index
+
+
 class processed_dataset(Data.Dataset):
     def __init__(self, args, train=True, transform=None, target_transform=None, exist=True):
         self.train = train
@@ -455,6 +499,47 @@ class distilled_dataset(Data.Dataset):
         return len(self.train_image) if self.train else len(self.val_image)
 
 
+class distilled_dataset_Clothing1M(Data.Dataset):
+    def __init__(self, args, train=True, transform=None, target_transform=None, dir=None):
+        self.train = train
+        self.transform = transform
+        self.target_transform = target_transform
+        self.dir = dir
+        self.args = args
+        data_dir = os.getenv('PBS_JOBFS')
+
+        if train:
+            self.processed_train_data = Clothing1M_processed(transform=transform,
+                                                             target_transform=target_transform)
+            distilled_clean_dataset_dir = os.path.join(dir, 'distilled_clean_images.tar')
+            with tarfile.open(distilled_clean_dataset_dir, 'r') as tar:
+                tar.extractall(path=data_dir)
+            self.distilled_clean_data = datasets.ImageFolder(os.path.join(data_dir, 'distilled_clean_images'),
+                                                             transform=transform, target_transform=target_transform)
+        else:
+            distilled_dataset_dir = os.path.join(data_dir, 'clean_val')
+            self.distilled_val_data = datasets.ImageFolder(distilled_dataset_dir, transform=transform,
+                                                           target_transform=target_transform)
+
+    def __getitem__(self, index):
+        if self.train:
+            if index < len(self.processed_train_data):
+                img, label, index = self.processed_train_data[index]
+                cls = 1
+            else:
+                img, label = self.distilled_clean_data[index - len(self.processed_train_data)]
+                cls = 0
+        else:
+            img, label = self.distilled_val_data[index]
+            cls = 0
+
+        return img, label, cls, index
+
+    def __len__(self):
+        return len(self.processed_train_data) + len(self.distilled_clean_data) if self.train else len(
+            self.distilled_val_data)
+
+
 class CIFAR10_test(Data.Dataset):
     def __init__(self, transform=None, target_transform=None, exist=False):
         self.transform = transform
@@ -510,7 +595,7 @@ class CIFAR100_test(Data.Dataset):
             self.test_label = np.load(os.path.join(dir, 'test_labels.npy'))
         else:
             test_set = datasets.CIFAR100(root='./data/cifar100/base', train=False, download=True,
-                                        transform=self.test_transform)
+                                         transform=self.test_transform)
 
             self.test_image = test_set.data
             self.test_label = np.array(test_set.targets)
@@ -533,6 +618,21 @@ class CIFAR100_test(Data.Dataset):
 
     def __len__(self):
         return len(self.test_image)
+
+
+class Clothing1M_test(ImageFolder):
+    def __init__(self, transform=None, target_transform=None):
+        data_dir = os.getenv('PBS_JOBFS')
+
+        if transform is None:
+            self.transform = transforms.ToTensor()
+        else:
+            self.transform = transform
+
+        self.target_transform = target_transform
+
+        data_path = os.path.join(data_dir, 'clean_test')
+        super().__init__(data_path, transform=self.transform, target_transform=self.target_transform)
 
 
 class CustomDataIterator:
@@ -579,3 +679,30 @@ class filtered_dataset(Data.Dataset):
 
     def __len__(self):
         return len(self.fine_tune_image)
+
+
+class filtered_dataset_Clothing1M(Data.Dataset):
+    def __init__(self, train, transform=None, target_transform=None):
+        self.transform = transform
+        self.target_transform = target_transform
+        self.train = train
+        data_dir = os.getenv('PBS_JOBFS')
+
+        if train:
+            self.distilled_clean_data = datasets.ImageFolder(os.path.join(data_dir, 'distilled_clean_images'),
+                                                             transform=transform, target_transform=target_transform)
+        else:
+            distilled_dataset_dir = os.path.join(data_dir, 'clean_val')
+            self.distilled_val_data = datasets.ImageFolder(distilled_dataset_dir, transform=transform,
+                                                           target_transform=target_transform)
+
+    def __getitem__(self, index):
+        if self.train:
+            img, label = self.distilled_clean_data[index]
+        else:
+            img, label = self.distilled_val_data[index]
+
+        return img, label, index
+
+    def __len__(self):
+        return len(self.distilled_clean_data) if self.train else len(self.distilled_val_data)

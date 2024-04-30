@@ -22,7 +22,7 @@ def transform(args):
             transforms.ToTensor(),
             transforms.Normalize((0.507, 0.487, 0.441), (0.267, 0.256, 0.276)),
         ])
-    elif args.dataset == 'clothing1m':
+    elif args.dataset == 'Clothing1M':
         args.num_classes = 14
         args.model = 'resnet50_p'
         transform = transforms.Compose([

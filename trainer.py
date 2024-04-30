@@ -1,3 +1,5 @@
+import os
+
 import torch
 import torch.nn.functional as F
 from tqdm import tqdm
@@ -12,10 +14,13 @@ def train(model, train_loader, optimizer, loss_func, args, scheduler, source_wei
     for imgs, labels, cls, _ in train_loader:
         sorted_indices = torch.argsort(cls, descending=True)
         imgs, labels = imgs[sorted_indices], labels[sorted_indices]
-        imgs, labels = imgs.to(args.device), labels.to(args.device)
+        imgs, labels = imgs.to(args.device, non_blocking=True), labels.to(args.device, non_blocking=True)
         weights = torch.tensor([source_weight] * int(cls.sum()) + [target_weight] * (len(cls) - int(cls.sum())))
         weights = weights.to(args.device)
-        output, _ = model(imgs)
+        if args.model == 'resnet50_p':
+            output = model(imgs)
+        else:
+            output, _ = model(imgs)
         loss = loss_func(output, labels)
         loss = torch.mean(loss * weights)
         optimizer.zero_grad()
@@ -37,7 +42,10 @@ def fine_tune(model, fine_tune_loader, test_loader, optimizer, loss_func, args):
         train_acc = 0.
         for imgs, labels, _ in fine_tune_loader:
             imgs, labels = imgs.to(args.device), labels.to(args.device)
-            output, _ = model(imgs)
+            if args.model == 'resnet50_p':
+                output = model(imgs)
+            else:
+                output, _ = model(imgs)
             loss = loss_func(output, labels)
             loss = torch.mean(loss)
             optimizer.zero_grad()
