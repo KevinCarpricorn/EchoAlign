@@ -17,7 +17,7 @@ pip install -r requirements.txt
 To train the models in the project, use the following command:
 
 ```bash
-python main.py --dataset cifar10 --noise_type symmetric --noise_rate 0.5 
+python main.py --dataset cifar10 --num_classes 10 --noise_type instance --noise_rate 0.5 
 ```
 
 >📋 The `main.py` script contains the main training loop and uses the parsed arguments from `args_parser.py`.
@@ -33,10 +33,10 @@ If you find the code useful in your research, please consider citing our paper:
 
 ```latex
 @inproceedings{
-    zheng2024,
-    title={Input Harmony: Revolutionizing Noisy Label Learning with ControlNet-Driven Feature Adaptation},
-    author={...},
-    booktitle={...},
+    zheng2024echoalign,
+    title={Can We Treat Noisy Labels as Accurate?},
+    author={Zheng, Yuxiang and Han, Zhongyi and Liu, Tongliang},
+    booktitle={NeurIPS},
     year={2024},
 }
 ```
