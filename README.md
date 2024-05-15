@@ -35,7 +35,7 @@ If you find the code useful in your research, please consider citing our paper:
 @inproceedings{
     zheng2024echoalign,
     title={Can We Treat Noisy Labels as Accurate?},
-    author={Zheng, Yuxiang and Han, Zhongyi and Liu, Tongliang},
+    author={Zheng, Yuxiang and Han, Zhongyi and Yin, Yilong and Gao, Xin and Liu, Tongliang},
     booktitle={NeurIPS},
     year={2024},
 }
