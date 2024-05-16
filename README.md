@@ -33,7 +33,7 @@ If you find the code useful in your research, please consider citing our paper:
 
 ```latex
 @inproceedings{
-    zheng2024echoalign,
+    2024echoalign,
     title={Can We Treat Noisy Labels as Accurate?},
     author={},
     booktitle={NeurIPS},
