@@ -5,27 +5,31 @@ import torch.nn.functional as F
 from tqdm import tqdm
 
 from evaluator import test
+from torch.cuda.amp import autocast, GradScaler
 
 
 def train(model, train_loader, optimizer, loss_func, args, scheduler, source_weight, target_weight):
+    scaler = GradScaler()
     model.train()
     train_loss = 0.
     train_acc = 0.
     for imgs, labels, cls, _ in train_loader:
         sorted_indices = torch.argsort(cls, descending=True)
         imgs, labels = imgs[sorted_indices], labels[sorted_indices]
-        imgs, labels = imgs.to(args.device, non_blocking=True), labels.to(args.device, non_blocking=True)
-        weights = torch.tensor([source_weight] * int(cls.sum()) + [target_weight] * (len(cls) - int(cls.sum())))
-        weights = weights.to(args.device)
-        if args.model == 'resnet50_p':
-            output = model(imgs)
-        else:
-            output, _ = model(imgs)
-        loss = loss_func(output, labels)
-        loss = torch.mean(loss * weights)
+        with autocast():
+            imgs, labels = imgs.to(args.device, non_blocking=True), labels.to(args.device, non_blocking=True)
+            weights = torch.tensor([source_weight] * int(cls.sum()) + [target_weight] * (len(cls) - int(cls.sum())))
+            weights = weights.to(args.device)
+            if args.model == 'resnet50_p':
+                output = model(imgs)
+            else:
+                output, _ = model(imgs)
+            loss = loss_func(output, labels)
+            loss = torch.mean(loss * weights)
         optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
         train_loss += loss.item()
         pred = torch.max(F.softmax(output, dim=1), 1)[1]
         train_correct = (pred == labels).sum()
@@ -36,21 +40,24 @@ def train(model, train_loader, optimizer, loss_func, args, scheduler, source_wei
 
 def fine_tune(model, fine_tune_loader, test_loader, optimizer, loss_func, args):
     best_acc = 0.
+    scaler = GradScaler()
     for epoch in tqdm(range(40)):
         model.train()
         train_loss = 0.
         train_acc = 0.
         for imgs, labels, _ in fine_tune_loader:
-            imgs, labels = imgs.to(args.device), labels.to(args.device)
-            if args.model == 'resnet50_p':
-                output = model(imgs)
-            else:
-                output, _ = model(imgs)
-            loss = loss_func(output, labels)
-            loss = torch.mean(loss)
+            with autocast():
+                imgs, labels = imgs.to(args.device), labels.to(args.device)
+                if args.model == 'resnet50_p':
+                    output = model(imgs)
+                else:
+                    output, _ = model(imgs)
+                loss = loss_func(output, labels)
+                loss = torch.mean(loss)
             optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
             train_loss += loss.item()
             pred = torch.max(F.softmax(output, dim=1), 1)[1]
             train_correct = (pred == labels).sum()

@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+from torch.cuda.amp import autocast
 
 
 def evaluate(model, val_loader, loss_func, args):
@@ -8,13 +9,14 @@ def evaluate(model, val_loader, loss_func, args):
     val_acc = 0.
     with torch.no_grad():
         for imgs, labels, _, _ in val_loader:
-            imgs, labels = imgs.to(args.device), labels.to(args.device)
-            if args.model == 'resnet50_p':
-                output = model(imgs)
-            else:
-                output, _ = model(imgs)
-            loss = loss_func(output, labels)
-            loss = loss.mean()
+            with autocast():
+                imgs, labels = imgs.to(args.device), labels.to(args.device)
+                if args.model == 'resnet50_p':
+                    output = model(imgs)
+                else:
+                    output, _ = model(imgs)
+                loss = loss_func(output, labels)
+                loss = loss.mean()
             val_loss += loss.item()
             pred = torch.max(F.softmax(output, dim=1), 1)[1]
             val_correct = (pred == labels).sum()
@@ -28,13 +30,14 @@ def test(model, test_loader, loss_func, args):
     test_acc = 0.
     with torch.no_grad():
         for imgs, labels in test_loader:
-            imgs, labels = imgs.to(args.device), labels.to(args.device)
-            if args.model == 'resnet50_p':
-                output = model(imgs)
-            else:
-                output, _ = model(imgs)
-            loss = loss_func(output, labels)
-            loss = loss.mean()
+            with autocast():
+                imgs, labels = imgs.to(args.device), labels.to(args.device)
+                if args.model == 'resnet50_p':
+                    output = model(imgs)
+                else:
+                    output, _ = model(imgs)
+                loss = loss_func(output, labels)
+                loss = loss.mean()
             test_loss += loss.item()
             pred = torch.max(F.softmax(output, dim=1), 1)[1]
             test_correct = (pred == labels).sum()

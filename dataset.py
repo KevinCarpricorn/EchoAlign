@@ -271,6 +271,90 @@ class CIFAR10(Data.Dataset):
         return len(self.train_image) if self.train else len(self.val_image)
 
 
+class CIFAR10N(Data.Dataset):
+    def __init__(self, args, train=True, transform=None, target_transform=None, split_per=0.9, exist=False):
+        self.transform = transform
+        self.target_transform = target_transform
+        self.random_seed = args.seed
+        self.num_classes = args.num_classes
+        self.dataset = args.dataset
+        self.exist = exist
+        self.train = train
+
+        train_dir = f'./data/cifar10/{self.dataset}/train'
+        val_dir = f'./data/cifar10/{self.dataset}/val'
+        os.makedirs(train_dir, exist_ok=True)
+        os.makedirs(val_dir, exist_ok=True)
+
+        # check existence of the dataset
+        if self.exist:
+            if self.train:
+                self.train_image = np.load(os.path.join(train_dir, 'train_images.npy'))
+                self.train_label = np.load(os.path.join(train_dir, 'train_labels.npy'))
+                self.clean_train_label = np.load(os.path.join(train_dir, 'clean_train_labels.npy'))
+            else:
+                self.val_image = np.load(os.path.join(val_dir, 'val_images.npy'))
+                self.val_label = np.load(os.path.join(val_dir, 'val_labels.npy'))
+                self.clean_val_label = np.load(os.path.join(val_dir, 'clean_val_labels.npy'))
+        else:
+            # split train dataset
+            train_set = datasets.CIFAR10(root='./data/cifar10/base', train=True, download=True,
+                                         transform=transforms.ToTensor())
+            train_image = train_set.data
+            processed_image = np.load(f'./data/cifar10/{self.dataset}/processed_images.npy')
+            train_label = np.array(train_set.targets)
+            noise_file = torch.load('./data/cifar10/base/CIFAR-10_human.pt')
+            if self.dataset == 'cifar10N_W':
+                noisy_label = noise_file['worse_label']
+            elif self.dataset == 'cifar10N_R1':
+                noisy_label = noise_file['random_label1']
+            elif self.dataset == 'cifar10N_R2':
+                noisy_label = noise_file['random_label2']
+            elif self.dataset == 'cifar10N_R3':
+                noisy_label = noise_file['random_label3']
+            elif self.dataset == 'cifar10N_A':
+                noisy_label = noise_file['aggre_label']
+            num_samples = int(train_label.shape[0])
+            np.random.seed(self.random_seed)
+            train_set_index = np.random.choice(num_samples, int(num_samples * split_per), replace=False)
+            index = np.arange(num_samples)
+            val_set_index = np.delete(index, train_set_index)
+
+            self.train_image, self.val_image = train_image[train_set_index, :], train_image[val_set_index, :]
+            self.train_label, self.val_label = noisy_label[train_set_index], noisy_label[val_set_index]
+            self.clean_train_label, self.clean_val_label = train_label[train_set_index], train_label[val_set_index]
+
+            np.save(os.path.join(train_dir, 'train_images.npy'), self.train_image)
+            np.save(os.path.join(train_dir, 'processed_train_images.npy'), processed_image[train_set_index, :])
+            np.save(os.path.join(train_dir, 'train_labels.npy'), self.train_label)
+            np.save(os.path.join(train_dir, 'clean_train_labels.npy'), self.clean_train_label)
+            np.save(os.path.join(val_dir, 'val_images.npy'), self.val_image)
+            np.save(os.path.join(val_dir, 'processed_val_images.npy'), processed_image[val_set_index, :])
+            np.save(os.path.join(val_dir, 'val_labels.npy'), self.val_label)
+            np.save(os.path.join(val_dir, 'clean_val_labels.npy'), self.clean_val_label)
+
+
+
+    def __getitem__(self, index):
+        if self.train:
+            img, label = self.train_image[index], self.train_label[index]
+        else:
+            img, label = self.val_image[index], self.val_label[index]
+
+        img = Image.fromarray(img.astype('uint8'))
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        if self.target_transform is not None:
+            label = self.target_transform(label)
+
+        return img, label, index
+
+    def __len__(self):
+        return len(self.train_image) if self.train else len(self.val_image)
+
+
 class CIFAR100(Data.Dataset):
     def __init__(self, args, train=True, transform=None, target_transform=None, split_per=0.9, exist=False):
         self.transform = transform
@@ -403,6 +487,62 @@ class Clothing1M_processed(ImageFolder):
         image, label = super(Clothing1M_processed, self).__getitem__(index)
 
         return image, label, index
+
+
+class CIFAR10N_processed_dataset(Data.Dataset):
+    def __init__(self, args, train=True, transform=None, target_transform=None, exist=True):
+        self.train = train
+        self.transform = transform
+        self.target_transform = target_transform
+        self.exist = exist
+        self.noise_type = args.noise_type
+        self.noise_rate = args.noise_rate
+        self.dataset = args.dataset
+
+        train_dir = f'./data/cifar10/{self.dataset}/train'
+        val_dir = f'./data/cifar10/{self.dataset}/val'
+        os.makedirs(train_dir, exist_ok=True)
+        os.makedirs(val_dir, exist_ok=True)
+
+        if self.exist:
+            if self.train:
+                self.train_image = np.load(os.path.join(train_dir, 'processed_train_images.npy'))
+                self.train_image = self.resize_images(self.train_image)
+                self.train_label = np.load(os.path.join(train_dir, 'train_labels.npy'))
+            else:
+                self.val_image = np.load(os.path.join(val_dir, 'processed_val_images.npy'))
+                self.val_image = self.resize_images(self.val_image)
+                self.val_label = np.load(os.path.join(val_dir, 'val_labels.npy'))
+        else:
+            # raise NotProcessedDatasetError
+            raise Exception('NotProcessedDatasetError')
+
+    def __getitem__(self, index):
+        if self.train:
+            img, label = self.train_image[index], self.train_label[index]
+        else:
+            img, label = self.val_image[index], self.val_label[index]
+
+        img = Image.fromarray(img.astype('uint8'))
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        if self.target_transform is not None:
+            label = self.target_transform(label)
+
+        return img, label, index
+
+    def __len__(self):
+        return len(self.train_image) if self.train else len(self.val_image)
+
+    def resize_images(self, images, size=(32, 32)):
+        resized_images = np.empty((images.shape[0], size[0], size[1], images.shape[3]), dtype=np.uint8)
+        for i in range(images.shape[0]):
+            img = Image.fromarray(images[i].astype('uint8'))
+            img_resized = img.resize(size)
+            resized_images[i] = np.array(img_resized)
+        return resized_images
 
 
 class processed_dataset(Data.Dataset):

@@ -2,7 +2,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.models import resnet50, ResNet50_Weights
 
-from tllib.modules.grl import WarmStartGradientReverseLayer
 
 
 class BasicBlock(nn.Module):

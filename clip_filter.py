@@ -68,7 +68,10 @@ def get_indices_Clothing1M(threshold=0.5):
 
 
 def filtering(args):
-    dataset_dir = os.path.join('./data', args.dataset, f'{args.noise_type}_{args.noise_rate}')
+    if args.noise_type == 'real':
+        dataset_dir = os.path.join('./data/cifar10', args.dataset)
+    else:
+        dataset_dir = os.path.join('./data', args.dataset, f'{args.noise_type}_{args.noise_rate}')
     train_images = np.load(os.path.join(dataset_dir, 'train', 'train_images.npy'))
     train_processed_images = np.load(os.path.join(dataset_dir, 'train', 'processed_train_images.npy'))
     val_images = np.load(os.path.join(dataset_dir, 'val', 'val_images.npy'))

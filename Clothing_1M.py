@@ -1,4 +1,5 @@
 import os.path
+import sys
 import tarfile
 
 import torch.nn as nn
@@ -23,7 +24,7 @@ args = parse_args()
 set_up(args)
 
 print(
-    f'==> Dataset: {args.dataset}, Batch Size: {args.batch_size}, Seed: {args.seed}')
+    f'==> Dataset: {args.dataset}, Batch Size: {args.batch_size}, Seed: {args.seed}, Learning Rate: {args.lr}, Weight Decay: {args.weight_decay}, threshold: {args.threshold}')
 
 # preparing dataset
 transform = transforms.transform(args)
@@ -86,13 +87,8 @@ val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, num
                         drop_last=False, pin_memory=True)
 # renew model
 model = models.get_model(args).to(args.device)
-model = nn.DataParallel(model)
 optimizer = optim.SGD(model.parameters(), lr=args.lr, weight_decay=args.weight_decay, momentum=0.9)
 scheduler = MultiStepLR(optimizer, milestones=[30, 40], gamma=0.1)
-fine_tune_data = dataset.filtered_dataset_Clothing1M(train=True, transform=transform, target_transform=target_transform)
-fine_tune_loader = DataLoader(fine_tune_data, batch_size=args.batch_size, shuffle=True,
-                              num_workers=args.num_workers,
-                              drop_last=False)
 print('==> Distilled dataset building done..')
 
 print('==> Start training..')
@@ -135,11 +131,11 @@ def main():
     #                                                test_acc * 100 / (len(test_loader.dataset))))
 
     # fine tune
-    best_acc = fine_tune(model, fine_tune_loader, test_loader, optimizer, loss_func, args)
+    # best_acc = fine_tune(model, fine_tune_loader, test_loader, optimizer, loss_func, args)
     print('Best Test Acc: {:.6f}%'.format(best_acc * 100 / (len(test_loader.dataset))))
 
 
 if __name__ == '__main__':
     log_dir = f'./logs/{args.dataset}'
     os.makedirs(log_dir, exist_ok=True)
-    logger.log(main, os.path.join(log_dir, f'{args.noise_type}_{args.noise_rate}.log'))
+    logger.log(main, os.path.join(log_dir, f'{args.dataset}_{args.seed}.log'))

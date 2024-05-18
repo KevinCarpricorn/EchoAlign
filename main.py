@@ -20,7 +20,7 @@ args = parse_args()
 # set up environment
 set_up(args)
 
-print(f'==> Dataset: {args.dataset}, Noise Type: {args.noise_type}, Noise Rate: {args.noise_rate}, Batch Size: {args.batch_size}, Seed: {args.seed}')
+print(f'==> Dataset: {args.dataset}, Noise Type: {args.noise_type}, Noise Rate: {args.noise_rate}, Batch Size: {args.batch_size}, Seed: {args.seed}, Threshold: {args.threshold}')
 
 # preparing dataset
 transform = transforms.transform(args)
@@ -58,7 +58,10 @@ os.makedirs(model_save_dir, exist_ok=True)
 
 # distillation
 print('==> Distilled dataset building..')
-distilled_dataset_dir = os.path.join('./data', args.dataset, f'{args.noise_type}_{args.noise_rate}')
+if args.noise_type == 'real':
+    distilled_dataset_dir = os.path.join('./data/cifar10', args.dataset)
+else:
+    distilled_dataset_dir = os.path.join('./data', args.dataset, f'{args.noise_type}_{args.noise_rate}')
 
 if os.path.exists(os.path.join(distilled_dataset_dir, 'train', 'distilled_train_images.npy')):
     print('==> Distilled dataset exists..')
@@ -72,7 +75,10 @@ elif args.noise_type == 'instance':
     distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
                             processed_val_data, distilled_dataset_dir)
 elif args.noise_type == 'pairflip':
-    # clip
+    train_clean_indices, val_clean_indices = filtering(args)
+    distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
+                         processed_val_data, distilled_dataset_dir)
+elif args.noise_type == 'real':
     train_clean_indices, val_clean_indices = filtering(args)
     distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val_data, processed_train_data,
                          processed_val_data, distilled_dataset_dir)
