@@ -3,25 +3,30 @@
 This repository is the official implementation
 of [Can We Treat Noisy Labels as Accurate?](https://arxiv.org/abs/2030.12345).
 
-> In machine learning, noisy labels undermine models' accuracy and generalization capability due to ambiguous instance
-> features. Traditional methods, such as using transition matrices for label correction, have not effectively resolved the
-> complexities associated with noisy labels. Challenging this direct correction approach, this paper introduces a
-> transformative paradigm—EchoAlign, which reinterprets noisy labels ($\tilde{Y}$) as accurate and adjusts the
-> corresponding instance features ($X$) to align with $\tilde{Y}$. EchoAlign employs advanced generative modeling to
-> modify instances, ensuring minimal style deviation from their original state while preserving label integrity. EchoAlign
-> introduces EchoFilter, an innovative sample selection technique that effectively mitigates distribution shifts between
-> training and testing datasets, adeptly handling both covariate and label shifts. This methodology conserves instances'
-> intrinsic properties and enhances their alignment with designated labels, substantially improving model performance.
-> Through EchoAlign, we demonstrate significant advancements in learning from noisy labels, achieving up to 98\% accuracy
-> in correcting instance-dependent noise. Remarkably, on the CIFAR-10 dataset with an instance-dependent noise rate of
-> 0.5, EchoAlign outperforms state-of-the-art methods by an impressive 7\% increase in accuracy.
+> Noisy labels significantly hinder the accuracy and generalization of machine learning models, particularly due to
+> ambiguous instance features. Traditional techniques that attempt to correct noisy labels directly, such as those using
+> transition matrices, often fail to address the inherent complexities of the problem sufficiently. In this paper, we
+> introduce EchoAlign, a transformative paradigm shift in learning from noisy labels. Instead of focusing on label
+> correction, EchoAlign treats noisy labels ($\tilde{Y}$) as accurate and modifies corresponding instance features ($X$)
+> to achieve better alignment with $\tilde{Y}$. EchoAlign's core components are (1) EchoMod: Employing controllable
+> generative models, EchoMod precisely modifies instances while maintaining their intrinsic characteristics and ensuring
+> alignment with the noisy labels. (2) EchoSelect: Instance modification inevitably introduces distribution shifts
+> between
+> training and test sets. EchoSelect maintains a significant portion of clean original instances to mitigate these
+> shifts.
+> It leverages the distinct feature distance distributions between original and modified instances as a robust tool for
+> accurate sample selection. This integrated approach yields remarkable results. In environments with 30\%
+> instance-dependent noise, even at 99\% selection accuracy, EchoSelect retains nearly twice the number of samples
+> compared to the previous best method. Notably, on three datasets, EchoAlign surpasses previous state-of-the-art
+> techniques with a substantial improvement.
 
 ## Requirements
 
 The project is implemented in PyTorch. To install the required libraries, run the following command:
 
 ```bash
-pip install -r requirements.txt
+conda env create -f environment.yml
+conda activate EchoAlign
 ```
 
 ## Training
@@ -30,6 +35,8 @@ To train the models in the project, use the following command:
 
 ```bash
 python main.py --dataset cifar10 --num_classes 10 --noise_type instance --noise_rate 0.5 
+python main.py --dataset cifar100 --num_classes 100 --noise_type instance --noise_rate 0.5 
+python main.py --dataset cifar10N --num_classes 10 --noise_type real --real_type random_label1 
 ```
 
 > 📋 The `main.py` script contains the main training loop and uses the parsed arguments from `args_parser.py`.

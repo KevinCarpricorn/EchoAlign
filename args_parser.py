@@ -24,7 +24,8 @@ def parse_args():
     parser.add_argument('--exist', type=bool, default=True)
     # set to 0 if using cpu
     parser.add_argument('--num_workers', type=int, default=8)
-    parser.add_argument('--real_type', type=str, default='random_label1')
+    parser.add_argument('--real_type', type=str, help='random_label1, random_label2, random_label3, worse_label',
+                        default='random_label1')
 
     args = parser.parse_args()
     return args
