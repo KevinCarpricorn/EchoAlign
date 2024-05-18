@@ -1,11 +1,9 @@
-import os
-
 import torch
 import torch.nn.functional as F
+from torch.cuda.amp import autocast, GradScaler
 from tqdm import tqdm
 
 from evaluator import test
-from torch.cuda.amp import autocast, GradScaler
 
 
 def train(model, train_loader, optimizer, loss_func, args, scheduler, source_weight, target_weight):

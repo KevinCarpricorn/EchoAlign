@@ -16,7 +16,8 @@ args = parse_args()
 # set up environment
 set_up(args)
 
-print(f'==> Dataset: {args.dataset}, Noise Type: {args.noise_type}, Noise Rate: {args.noise_rate}, Batch Size: {args.batch_size}, Seed: {args.seed}')
+print(
+    f'==> Dataset: {args.dataset}, Noise Type: {args.noise_type}, Noise Rate: {args.noise_rate}, Batch Size: {args.batch_size}, Seed: {args.seed}')
 
 # preparing dataset
 transform = transforms.transform(args)

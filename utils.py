@@ -1,6 +1,4 @@
 import os
-import shutil
-import tarfile
 
 import numpy as np
 import torch
@@ -403,28 +401,6 @@ def distill_dataset_clip(train_clean_indices, val_clean_indices, train_data, val
         f'Accuracy of distilled validation examples collection: {(val_distilled_examples_labels == distilled_clean_labels).sum() * 100 / len(val_distilled_examples_labels)}%')
     np.save(os.path.join(dataset_dir, 'val', f'distilled_val_images.npy'), distilled_imgs)
     np.save(os.path.join(dataset_dir, 'val', f'distilled_val_labels.npy'), distilled_labels)
-
-
-def distill_dataset_Clothing1M(train_clean_indices, train_data):
-    print('==> Filtering dataset..')
-
-    train_distilled_examples_index = train_clean_indices
-
-    distilled_imgs_path = os.path.join(os.getenv('PBS_JOBFS'), 'distilled_clean_images')
-    save_dir = '/scratch/yc49/yz4497/neurips/data/Clothing1M/base'
-
-    for idx in train_distilled_examples_index:
-        img_path, label = train_data.samples[idx]
-        new_image_dir = os.path.join(distilled_imgs_path, str(label))
-        os.makedirs(new_image_dir, exist_ok=True)
-
-        new_file_path = os.path.join(new_image_dir, os.path.basename(img_path))
-        shutil.copy(img_path, new_file_path)
-
-    with tarfile.open(os.path.join(save_dir, 'distilled_clean_images.tar'), 'w') as tar:
-        tar.add(distilled_imgs_path, arcname=os.path.basename(distilled_imgs_path))
-
-    print(f'Number of distilled train examples: {len(train_distilled_examples_index)}')
 
 
 def set_up(args):

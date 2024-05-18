@@ -19,7 +19,8 @@ def parse_args():
     parser.add_argument('--distill_epochs', type=int, default=70)
     parser.add_argument('--features_dim', type=int, default=512)
     parser.add_argument('--threshold', type=float, default=0.5)
-    parser.add_argument('--noise_type', type=str, default='instance', choices=['symmetric', 'pairflip', 'instance', 'real'])
+    parser.add_argument('--noise_type', type=str, default='instance',
+                        choices=['symmetric', 'pairflip', 'instance', 'real'])
     parser.add_argument('--exist', type=bool, default=True)
     # set to 0 if using cpu
     parser.add_argument('--num_workers', type=int, default=8)

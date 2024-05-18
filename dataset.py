@@ -333,8 +333,6 @@ class CIFAR10N(Data.Dataset):
             np.save(os.path.join(val_dir, 'val_labels.npy'), self.val_label)
             np.save(os.path.join(val_dir, 'clean_val_labels.npy'), self.clean_val_label)
 
-
-
     def __getitem__(self, index):
         if self.train:
             img, label = self.train_image[index], self.train_label[index]

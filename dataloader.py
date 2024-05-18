@@ -21,8 +21,9 @@ def get_processed_dataset(train, transform, target_transform, args, exist=False)
         data = dataset.processed_dataset(args, train=train, transform=transform, target_transform=target_transform,
                                          exist=exist)
     elif args.dataset.startswith('cifar10N'):
-        data = dataset.CIFAR10N_processed_dataset(args, train=train, transform=transform, target_transform=target_transform,
-                                         exist=exist)
+        data = dataset.CIFAR10N_processed_dataset(args, train=train, transform=transform,
+                                                  target_transform=target_transform,
+                                                  exist=exist)
     elif args.dataset == 'Clothing1M':
         data = dataset.Clothing1M_processed(train=train, transform=transform, target_transform=target_transform)
 

@@ -3,7 +3,6 @@ import torch.nn.functional as F
 from torchvision.models import resnet50, ResNet50_Weights
 
 
-
 class BasicBlock(nn.Module):
     expansion = 1
 
