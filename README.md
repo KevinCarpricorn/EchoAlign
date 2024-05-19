@@ -32,9 +32,9 @@ conda activate EchoAlign
 To train the models in the project, use the following command:
 
 ```bash
-python main.py --dataset cifar10 --num_classes 10 --noise_type instance --noise_rate 0.5 
-python main.py --dataset cifar100 --num_classes 100 --noise_type instance --noise_rate 0.5 
-python main.py --dataset cifar10N --num_classes 10 --noise_type real --real_type random_label1 
+python main.py --dataset cifar10 --num_classes 10 --noise_type instance --noise_rate 0.5 --threshold 0.52
+python main.py --dataset cifar100 --num_classes 100 --noise_type instance --noise_rate 0.5 --threshold 0.52
+python main.py --dataset cifar10N --num_classes 10 --noise_type real --real_type random_label1 --threshold 0.43
 ```
 
 > 📋 The `main.py` script contains the main training loop and uses the parsed arguments from `args_parser.py`.
