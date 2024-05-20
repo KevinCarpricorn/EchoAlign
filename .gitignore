@@ -3,5 +3,7 @@ model/
 backup/
 .idea/
 __pycache__/
+logs/
+tllib/
 *.sh
 test.py
