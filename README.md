@@ -48,13 +48,5 @@ python main.py --dataset cifar10N --num_classes 10 --noise_type real --real_type
 
 If you find the code useful in your research, please consider citing our paper:
 
-```latex
-@inproceedings{
-    2024echoalign,
-    title={Can We Treat Noisy Labels as Accurate?},
-    author={},
-    booktitle={NeurIPS},
-    year={2024},
-}
-```
+
 
