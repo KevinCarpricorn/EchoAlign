@@ -3,20 +3,7 @@
 This repository is the official implementation
 of [Can We Treat Noisy Labels as Accurate?](https://arxiv.org/abs/2030.12345).
 
-> Noisy labels significantly hinder the accuracy and generalization of machine learning models, particularly due to
-> ambiguous instance features. Traditional techniques that attempt to correct noisy labels directly, such as those using
-> transition matrices, often fail to address the inherent complexities of the problem sufficiently. In this paper, we
-> introduce EchoAlign, a transformative paradigm shift in learning from noisy labels. Instead of focusing on label
-> correction, EchoAlign treats noisy labels ($\tilde{Y}$) as accurate and modifies corresponding instance features ($X$)
-> to achieve better alignment with $\tilde{Y}$. EchoAlign's core components are (1) EchoMod: Employing controllable
-> generative models, EchoMod precisely modifies instances while maintaining their intrinsic characteristics and ensuring
-> alignment with the noisy labels. (2) EchoSelect: Instance modification inevitably introduces distribution shifts between
-> training and test sets. EchoSelect maintains a significant portion of clean original instances to mitigate these shifts.
-> It leverages the distinct feature similarity distributions between original and modified instances as a robust tool for
-> accurate sample selection. This integrated approach yields remarkable results. In environments with 30\%
-> instance-dependent noise, even at 99\% selection accuracy, EchoSelect retains nearly twice the number of samples
-> compared to the previous best method. Notably, on three datasets, EchoAlign surpasses previous state-of-the-art
-> techniques with a substantial improvement.
+>Noisy labels present a significant challenge to the accuracy and generalization of machine learning models, especially when they originate from ambiguous instance features. Traditional methods for directly addressing noisy labels, such as those using transition matrices, often fail to adequately capture label noise caused by ambiguous features. In this paper, we propose EchoAlign, a paradigm shift in learning from noisy labels. Rather than correcting noisy labels, EchoAlign treats noisy labels ($\tilde{Y}$) as accurate and modifies the corresponding instance features ($X$) to achieve better alignment with $\tilde{Y}$. The EchoAlign framework has two primary components: 1) EchoMod utilizes controllable generative models to modify instances $X$ while preserving intrinsic characteristics. 2) EchoSelect mitigates distribution shifts by retaining a substantial portion of original, correctly labeled instances. EchoSelect further enhances selection accuracy by leveraging feature similarity distributions. Across three datasets, EchoAlign significantly outperforms state-of-the-art methods, especially in high-noise scenarios, showcasing both superior accuracy and robustness. In settings with 30\% instance-dependent noise, EchoSelect retains nearly twice as many samples as previous methods at 99\% selection accuracy, demonstrating the observed improvements.
 
 ## Requirements
 
